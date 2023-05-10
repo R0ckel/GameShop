@@ -32,7 +32,8 @@ public static class CommentExtensions
             GameName = comment.Game?.Name ?? string.Empty,
             UserId = comment.UserId,
             UserName = $"{comment.User?.Name} {comment.User?.Surname}",
-            Text = comment.Text ?? string.Empty
+            Text = comment.Text ?? string.Empty,
+            Created = comment.Created
         };
     }
 }

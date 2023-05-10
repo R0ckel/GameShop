@@ -62,6 +62,7 @@ public class CommentService : ICommentService
         {
             var comment = request.ToModel();
             comment.UserId = userId;
+            comment.Created = DateTime.UtcNow;
 
             _context.Comments.Add(comment);
             await _context.SaveChangesAsync();

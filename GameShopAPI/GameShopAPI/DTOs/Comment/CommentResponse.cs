@@ -8,4 +8,5 @@ public class CommentResponse
     public Guid GameId { get; set; }
     public string GameName { get; set; } = string.Empty;
     public string Text { get; set; } = string.Empty;
+    public DateTime Created { get; set; }
 }
