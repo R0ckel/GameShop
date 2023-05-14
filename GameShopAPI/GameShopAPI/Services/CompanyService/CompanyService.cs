@@ -175,7 +175,7 @@ public class CompanyService : ICompanyService
 
             response.Success = true;
             response.Message = "Company deleted successfully";
-            response.StatusCode = StatusCodes.Status200OK;
+            response.StatusCode = StatusCodes.Status204NoContent;
         }
         catch (Exception ex)
         {

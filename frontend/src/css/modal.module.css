@@ -1,0 +1,30 @@
+.modal {
+  background: rgba(135, 206, 235, 0.48);
+  border-radius: 20px;
+  width: 70vw;
+  padding-bottom: 10px;
+  text-align: center;
+  border: 2px dot-dot-dash crimson;
+}
+
+.modal-enter {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+.modal-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.modal-exit-active {
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 300ms, transform 300ms;
+}
+
+.modal-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 300ms, transform 300ms;
+}

@@ -5,5 +5,6 @@ namespace GameShopAPI.Services.AuthService;
 
 public interface IAuthService
 {
-    Task<BaseResponse<AuthResponse>> Login(LoginUserRequest request);
+    Task<BaseResponse<AuthResponse>> Login(LoginUserRequest request, HttpResponse response);
+    BaseResponse<bool> Logout(HttpResponse response);
 }

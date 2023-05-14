@@ -1,63 +1,30 @@
 using GameShopAPI.Extensions;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using Microsoft.IdentityModel.Tokens;
-using Microsoft.Net.Http.Headers;
-using Microsoft.OpenApi.Models;
-using System.Text;
+using GameShopAPI.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // add domain services
 builder
     .ConfigureServices()
-    .ConfigureContext();
+    .ConfigureContext()
+    .ConfigureAuth()
+    .ConfigureSwagger();
 
 builder.Services.AddControllers();
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
-    {
-        options.TokenValidationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration.GetSection("Authorization:TokenKey").Value!)),
-            ValidateIssuer = false,
-            ValidateAudience = false
-        };
-    });
 
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(c =>
+
+builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-    c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameShopAPI", Version = "v1" });
-    c.AddSecurityDefinition(
-        "token",
-        new OpenApiSecurityScheme
-        {
-            Type = SecuritySchemeType.Http,
-            BearerFormat = "JWT",
-            Scheme = "Bearer",
-            In = ParameterLocation.Header,
-            Name = HeaderNames.Authorization
-        }
-    );
-    c.AddSecurityRequirement(
-        new OpenApiSecurityRequirement
-        {
-                {
-                    new OpenApiSecurityScheme
-                    {
-                        Reference = new OpenApiReference
-                        {
-                            Type = ReferenceType.SecurityScheme,
-                            Id = "token"
-                        },
-                    },
-                    Array.Empty<string>()
-                }
-        }
-    );
-}
-);
+    // This lambda determines whether user consent for non-essential cookies is needed for a given request.
+    options.CheckConsentNeeded = context => true;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
+
+//builder.Services.ConfigureApplicationCookie(options =>
+//{
+//    options.Cookie.HttpOnly = true;
+//});
 
 var app = builder.Build();
 
@@ -68,8 +35,17 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+app.UseCors(builder =>
+    builder.WithOrigins("http://localhost:3000")
+           .AllowAnyHeader()
+           .AllowAnyMethod()
+           .AllowCredentials());
+app.UseCookiePolicy();
 
+//app.UseHttpsRedirection();
+
+app.UseMiddleware<JwtMiddleware>(); 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

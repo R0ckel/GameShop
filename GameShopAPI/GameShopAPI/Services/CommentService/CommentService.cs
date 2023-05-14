@@ -188,7 +188,7 @@ public class CommentService : ICommentService
 
             response.Success = true;
             response.Message = "Success";
-            response.StatusCode = StatusCodes.Status200OK;
+            response.StatusCode = StatusCodes.Status204NoContent;
         }
         catch (Exception ex)
         {

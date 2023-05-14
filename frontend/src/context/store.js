@@ -53,16 +53,22 @@ const productListSlice = createSlice({
 	},
 })
 
-const userStatusSlice = createSlice({
+const userDataSlice = createSlice({
 	name: 'userStatus',
 	initialState: {
 		isLoggedIn: false,
+		userId: "",
 		username: "",
+		email: "",
+		role: ""
 	},
 	reducers: {
-		setLoggedInValue(state, action) {
-			state.isLoggedIn = action.payload.value
-			state.username = action.payload.username
+		setUserData(state, action) {
+			state.isLoggedIn = action.payload.isLoggedIn ?? false
+			state.userId = action.payload.userId ?? ""
+			state.username = action.payload.username ?? ""
+			state.email = action.payload.email ?? ""
+			state.role = action.payload.role ?? "unauthorized"
 		},
 	}
 })
@@ -71,13 +77,12 @@ export const store = configureStore({
 	reducer: {
 		baseAppUrl: baseAppUrlSlice.reducer,
 		productList: productListSlice.reducer,
-		userStatus: userStatusSlice.reducer,
+		userData: userDataSlice.reducer,
 	}
 })
 
-// експортуємо дії з кожного slice
 export const {setBaseUrl} = baseAppUrlSlice.actions
-export const {setLoggedInValue} = userStatusSlice.actions
+export const {setUserData} = userDataSlice.actions
 export const {
 	setProducts,
 	addProduct,
@@ -87,7 +92,6 @@ export const {
 	setCardViewFields
 } = productListSlice.actions
 
-// експортуємо додаткові розрахункові поля
 export const selectedProductsCount = state => state.productList.products.filter(product => product.selected).length
 export const getProductCategories = state => {
 	const categories = state.productList.products.map(product => product.category);

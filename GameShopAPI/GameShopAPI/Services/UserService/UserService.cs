@@ -32,6 +32,12 @@ public class UserService : IUserService
                 return response;
             }
 
+            if (!IsValidPassword(request.Password))
+            {
+                response.Message = "Password invalid";
+                return response;
+            }
+
             var user = request.ToModel();
             _passwordHasher.SetUserPasswordHash(user, request.Password);
 
@@ -50,6 +56,20 @@ public class UserService : IUserService
         }
 
         return response;
+    }
+
+    private bool IsValidPassword(string password)
+    {
+        if (password == null || password.Length < 8 || password.Length > 64)
+            return false;
+
+        if (!password.Any(char.IsUpper))
+            return false;
+
+        if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+            return false;
+
+        return true;
     }
 
     public async Task<BaseResponse<UserResponse>> ReadAsync(Guid id)

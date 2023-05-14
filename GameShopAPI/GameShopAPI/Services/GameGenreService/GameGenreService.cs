@@ -173,7 +173,7 @@ public class GameGenreService : IGameGenreService
 
             response.Success = true;
             response.Message = "Game genre deleted successfully";
-            response.StatusCode = StatusCodes.Status200OK;
+            response.StatusCode = StatusCodes.Status204NoContent;
         }
         catch (Exception ex)
         {

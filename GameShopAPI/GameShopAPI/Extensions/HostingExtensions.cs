@@ -14,6 +14,12 @@ using GameShopAPI.Services.UserImageService;
 using GameShopAPI.DTOs.User;
 using GameShopAPI.Services.CommentService;
 using GameShopAPI.Services.BasketService;
+using Microsoft.Net.Http.Headers;
+using Microsoft.OpenApi.Models;
+using Microsoft.Extensions.Options;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 namespace GameShopAPI.Extensions;
 
@@ -43,6 +49,61 @@ public static class HostingExtensions
     public static WebApplicationBuilder ConfigureContext(this WebApplicationBuilder builder)
     {
         builder.Services.AddDbContext<GameShopContext>();
+
+        return builder;
+    }
+
+    public static WebApplicationBuilder ConfigureSwagger(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddSwaggerGen(c =>
+        {
+            c.SwaggerDoc("v1", new OpenApiInfo { Title = "GameShopAPI", Version = "v1" });
+            c.AddSecurityDefinition(
+                "token",
+                new OpenApiSecurityScheme
+                {
+                    Type = SecuritySchemeType.Http,
+                    BearerFormat = "JWT",
+                    Scheme = "Bearer",
+                    In = ParameterLocation.Header,
+                    Name = HeaderNames.Authorization
+                }
+            );
+            c.AddSecurityRequirement(
+                new OpenApiSecurityRequirement
+                {
+                {
+                    new OpenApiSecurityScheme
+                    {
+                        Reference = new OpenApiReference
+                        {
+                            Type = ReferenceType.SecurityScheme,
+                            Id = "token"
+                        },
+                    },
+                    Array.Empty<string>()
+                }
+                }
+            );
+        });
+
+        return builder;
+    }
+
+    public static WebApplicationBuilder ConfigureAuth(this WebApplicationBuilder builder)
+    {
+        builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+            .AddJwtBearer(options =>
+            {
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateIssuerSigningKey = true,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(
+                        builder.Configuration.GetSection("Authorization:TokenKey").Value!)),
+                    ValidateIssuer = false,
+                    ValidateAudience = false
+                };
+            });
 
         return builder;
     }

@@ -175,7 +175,7 @@ public class UserRoleService : IUserRoleService
 
             response.Success = true;
             response.Message = "UserRole deleted successfully";
-            response.StatusCode = StatusCodes.Status200OK;
+            response.StatusCode = StatusCodes.Status204NoContent;
         }
         catch (Exception ex)
         {

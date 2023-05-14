@@ -7,6 +7,7 @@ using GameShopAPI.DTOs.User;
 using GameShopAPI.Services.PasswordHasher;
 using GameShopAPI.Data;
 using Microsoft.EntityFrameworkCore;
+using Azure;
 
 namespace GameShopAPI.Services.AuthService;
 
@@ -23,7 +24,7 @@ public class AuthService : IAuthService
         _passwordHasher = passwordHasher;
     }
 
-    public async Task<BaseResponse<AuthResponse>> Login(LoginUserRequest request)
+    public async Task<BaseResponse<AuthResponse>> Login(LoginUserRequest request, HttpResponse response)
     {
         try
         {
@@ -54,25 +55,88 @@ public class AuthService : IAuthService
             }
 
             string token = CreateToken(user);
+            var tokenParts = token.Split('.');
+            string headerAndPayload = tokenParts[0] + '.' + tokenParts[1];
+            string signature = tokenParts[2];
 
-            var response = new AuthResponse
+            // add auth info in 2 separate cookies
+            // 1 with info (payload), and 1 with signature as userkey (+ secure)
+            var cookieOptions = new CookieOptions()
             {
-                Token = token,
-                Success = true,
-                UserName = $"{user.Name} {user.Surname}"
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.Now.AddHours(6),
+                IsEssential = true,
+            };
+            response.Cookies.Append("headerAndPayload", headerAndPayload, cookieOptions);
+            var signatureCookieOptions = new CookieOptions()
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                Expires = DateTime.Now.AddHours(6),
+                IsEssential = true,
+            };
+            response.Cookies.Append("signature", signature, signatureCookieOptions);
+
+            var role = await _context.UserRoles.FirstOrDefaultAsync(x => x.Id == user.RoleId);
+            var authResponse = new AuthResponse
+            {
+                UserName = $"{user.Name} {user.Surname}",
+                Role = role?.Name ?? string.Empty,
             };
 
             return new BaseResponse<AuthResponse>
             {
-                Message = response.Success ? "Success" : "Login error",
-                StatusCode = response.Success ? StatusCodes.Status200OK : StatusCodes.Status400BadRequest,
+                Success = true,
+                Message = "Success",
+                StatusCode = StatusCodes.Status200OK,
                 ValueCount = 1,
-                Values = new List<AuthResponse> { response }
+                Values = new List<AuthResponse> { authResponse }
             };
         }
         catch (Exception ex)
         {
             return new BaseResponse<AuthResponse>()
+            {
+                Message = ex.InnerException != null ? ex.InnerException.Message : ex.Message
+            };
+        }
+    }
+
+    public BaseResponse<bool> Logout(HttpResponse response)
+    {
+        try
+        {
+            var cookieOptions = new CookieOptions()
+            {
+                HttpOnly = false,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                IsEssential = true,
+            };
+            var signatureCookieOptions = new CookieOptions()
+            {
+                HttpOnly = true,
+                Secure = true,
+                SameSite = SameSiteMode.None,
+                IsEssential = true,
+            };
+            response.Cookies.Delete("headerAndPayload", cookieOptions);
+            response.Cookies.Delete("signature", signatureCookieOptions);
+
+            return new BaseResponse<bool>
+            {
+                Message = "Logout successful",
+                Success = true,
+                StatusCode = StatusCodes.Status200OK,
+            };
+        }
+        catch (Exception ex)
+        {
+            // Handle the exception here
+            return new BaseResponse<bool>()
             {
                 Message = ex.InnerException != null ? ex.InnerException.Message : ex.Message
             };
@@ -85,7 +149,8 @@ public class AuthService : IAuthService
         {
             new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Role, user.Role?.Name ?? "User"),
-            new Claim(ClaimTypes.Email, user.Email)
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Name, $"{user.Name} {user.Surname}"),
         };
 
         var key = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(
@@ -95,7 +160,7 @@ public class AuthService : IAuthService
 
         var token = new JwtSecurityToken(
             claims: claims,
-            expires: DateTime.Now.AddDays(3),
+            expires: DateTime.Now.AddHours(6),
             signingCredentials: creds);
 
         var jwt = new JwtSecurityTokenHandler().WriteToken(token);

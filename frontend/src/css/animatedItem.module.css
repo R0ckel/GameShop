@@ -1,0 +1,21 @@
+.item-enter {
+  opacity: 0;
+  transform: scale(0.7);
+}
+
+.item-exit {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.item-exit-active {
+  opacity: 0;
+  transform: scale(0.7);
+  transition: opacity 500ms, transform 500ms;
+}
+
+.item-enter-active {
+  opacity: 1;
+  transform: scale(1);
+  transition: opacity 500ms, transform 500ms;
+}

@@ -11,8 +11,8 @@ namespace GameShopAPI.Controllers;
 [ApiController]
 public class UserManagementController : ControllerBase
 {
-    private IUserService _userService;
-    private IAuthService _authService;
+    private readonly IUserService _userService;
+    private readonly IAuthService _authService;
 
     public UserManagementController(IUserService userService, IAuthService authService)
     {
@@ -30,7 +30,10 @@ public class UserManagementController : ControllerBase
 
     [HttpPost("login")]
     public async Task<BaseResponse<AuthResponse>> Login(LoginUserRequest request)
-        => await _authService.Login(request);
+        => await _authService.Login(request, Response);
+
+    [HttpPost("logout")]
+    public BaseResponse<bool> Login() => _authService.Logout(Response);
 
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(Guid id, UpdateUserRequest request)

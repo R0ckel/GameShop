@@ -35,9 +35,9 @@ public class UserImagesController : ControllerBase
         return result;
     }
 
-    // Post api/v1/UserImages/5/image
-    [HttpPost("{id}")]
-    public async Task<BaseResponse<UserResponse>> Post(Guid id, IFormFile file)
+    // Put api/v1/UserImages/5/image
+    [HttpPut("{id}")]
+    public async Task<BaseResponse<UserResponse>> Put(Guid id, IFormFile file)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -46,7 +46,7 @@ public class UserImagesController : ControllerBase
             return new BaseResponse<UserResponse>
             {
                 StatusCode = StatusCodes.Status403Forbidden,
-                Message = "Forbidden to post image of another account"
+                Message = "Forbidden to put image of another account"
             };
         }
 
