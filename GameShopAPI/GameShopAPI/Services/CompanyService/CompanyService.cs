@@ -1,5 +1,6 @@
 ﻿using GameShopAPI.Data;
 using GameShopAPI.DTOs.Company;
+using GameShopAPI.DTOs.GameGenre;
 using GameShopAPI.Extensions.Domain;
 using GameShopAPI.Models.Base;
 using Microsoft.EntityFrameworkCore;
@@ -43,8 +44,33 @@ public class CompanyService : ICompanyService
             response.StatusCode = StatusCodes.Status200OK;
             response.Values.AddRange(companies);
             response.ValueCount = companies.Count;
-            response.PageCount = (int)Math.Ceiling(await query.CountAsync() / (double)pageSize);
+            response.PageNumber = page;
             response.PageSize = pageSize;
+            response.PageCount = (int)Math.Ceiling(await query.CountAsync() / (double)pageSize);
+        }
+        catch (Exception ex)
+        {
+            response.Message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+        }
+
+        return response;
+    }
+
+    public async Task<BaseResponse<CompanyCard>> ReadCardsAsync()
+    {
+        var response = new BaseResponse<CompanyCard>();
+
+        try
+        {
+            var companies = await _context.Companies
+                .Select(x => x.ToCard())
+                .ToListAsync();
+
+            response.Success = true;
+            response.Message = "Success";
+            response.StatusCode = StatusCodes.Status200OK;
+            response.Values.AddRange(companies);
+            response.ValueCount = companies.Count;
         }
         catch (Exception ex)
         {

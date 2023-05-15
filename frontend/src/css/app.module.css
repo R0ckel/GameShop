@@ -61,10 +61,10 @@ header > * {
   border-radius: 1vh;
 }
 .btn:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(255, 255, 255, 0.2);
 }
 .btn:active {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(255, 255, 255, 0.1);
 }
 .success {color: green;}
 .info {color: dodgerblue;}
@@ -126,13 +126,13 @@ main{
 }
 
 .chosen{
-  background-color: rgba(0, 238, 255, 0.205);
+  background-color: rgba(0, 238, 255, 0.25);
 }
 .dynamic:hover{
-  background-color: rgba(255, 255, 255, 0.350);
+  background-color: rgba(255, 255, 255, 0.35);
 }
 .dynamic:active{
-  background-color: rgba(255, 255, 255, 0.200);
+  background-color: rgba(255, 255, 255, 0.2);
 }
 
 .menuItem input{
@@ -182,7 +182,8 @@ main{
 .listHeader{
   display: flex;
   justify-content: space-evenly;
-  margin: 1vh 1vw;
+  margin: 1vh auto;
+  width: 100%;
 }
 .listHeader *{
   font-size: 30px;
@@ -283,9 +284,30 @@ input[type="submit"]:hover {
   height: 30vh;
   margin: 1vh;
 }
+.thumbnail{
+  height: 5.5vh;
+  margin-top: 0.5vh;
+}
 .backgroundHighlighted{
   background: rgba(255, 255, 255, 0.05);
 }
 .smoothBorder{
   border-radius: 2vh;
+}
+
+.filterForm{
+  width: 100%;
+  padding: 1vh;
+}
+.filterForm label{
+  color: white !important;
+}
+.inlineForm{
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: wrap;
+  max-width: inherit;
+}
+.inlineForm > *{
+  margin-top: 1vh;
 }

@@ -1,4 +1,5 @@
 ﻿using GameShopAPI.DTOs.Company;
+using GameShopAPI.DTOs.GameGenre;
 using GameShopAPI.Models.Base;
 
 namespace GameShopAPI.Services.CompanyService;
@@ -10,4 +11,5 @@ public interface ICompanyService
     Task<BaseResponse<CompanyResponse>> UpdateAsync(Guid id, UpdateCompanyRequest request);
     Task<BaseResponse<CompanyResponse>> DeleteAsync(Guid id);
     Task<BaseResponse<CompanyResponse>> ReadPageAsync(int page, int pageSize, CompanyFilter? filter);
+    Task<BaseResponse<CompanyCard>> ReadCardsAsync();
 }

@@ -36,16 +36,20 @@ public class UserManagementController : ControllerBase
     public BaseResponse<bool> Login() => _authService.Logout(Response);
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(Guid id, UpdateUserRequest request)
+    public async Task<BaseResponse<UserResponse>> Put(Guid id, UpdateUserRequest request)
     {
         var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
         if (userId != id.ToString())
         {
-            return Forbid();
+            return new BaseResponse<UserResponse>()
+            {
+                StatusCode = StatusCodes.Status403Forbidden,
+                Message = "Try to change different account from active one has been detected!"
+            };
         }
 
         var response = await _userService.UpdateAsync(id, request);
-        return Ok(response);
+        return response;
     }
 }

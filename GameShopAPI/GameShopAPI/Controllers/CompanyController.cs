@@ -23,6 +23,11 @@ public class CompanyController : ControllerBase
                                                          int pageSize = 10)
         => await _companyService.ReadPageAsync(page, pageSize, filter);
 
+    // GET: api/v1/Company/cards
+    [HttpGet("cards")]
+    public async Task<BaseResponse<CompanyCard>> GetCards()
+        => await _companyService.ReadCardsAsync();
+
     // GET api/v1/Company/5
     [HttpGet("{id}")]
     public async Task<BaseResponse<CompanyResponse>> Get(Guid id)

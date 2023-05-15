@@ -107,4 +107,15 @@ public static class HostingExtensions
 
         return builder;
     }
+
+    public static IApplicationBuilder UseSeedData(this IApplicationBuilder app)
+    {
+        using (var serviceScope = app.ApplicationServices.CreateScope())
+        {
+            var services = serviceScope.ServiceProvider;
+            SeedData.Initialize(services);
+        }
+
+        return app;
+    }
 }

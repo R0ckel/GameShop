@@ -6,7 +6,7 @@ import {Field, Form, Formik} from 'formik';
 import * as Yup from 'yup';
 import {Button, Input, message, Modal} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
-import {authService} from "../../../services/authService";
+import {AuthService} from "../../../services/authService";
 import {Link, useNavigate} from "react-router-dom";
 import {setUserData} from "../../../context/store";
 
@@ -73,16 +73,19 @@ const RegistrationSchema = Yup.object().shape({
   birthDate: Yup.date()
   .required('Please, enter your birth date!'),
 
-  password: Yup.string()
-  .required('Please enter your password!')
-  .matches(/^(?=.*[A-Z])(?=.*[^a-zA-Z])/,
-    'Password must contain at least one uppercase letter and one non-letter character')
-  .min(8, "Password must be at least 8 characters long")
-  .max(64, 'Password must be at most 64 characters long'),
+  newPassword: Yup.string()
+  .matches(
+    /^(?=.*[A-Z])(?=.*[^a-zA-Z])/,
+    'Password must contain at least one uppercase letter and one non-letter character'
+  )
+  .matches(/\d/, 'Password must contain at least one digit')
+  .min(8, 'Password must be at least 8 characters long')
+  .max(64, 'Password must be at most 64 characters long')
+  .required('Enter your password!'),
 
   confirmPassword: Yup.string()
-  .required('Please confirm your password!')
-  .oneOf([Yup.ref('password')], 'Passwords must match')
+  .oneOf([Yup.ref('newPassword')], 'Passwords must match')
+  .required('Confirm your password!'),
 });
 
 const LoginPanel = () => {
@@ -94,7 +97,7 @@ const LoginPanel = () => {
   const navigate  = useNavigate();
 
   async function handleLogOut() {
-    const response = await authService.logout()
+    const response = await AuthService.logout()
     if (response.success){
       dispatch(setUserData({isLoggedIn: false}))
       navigate('/');
@@ -106,12 +109,12 @@ const LoginPanel = () => {
   const handleLogin = async (values) => {
     setIsLoading(true);
     try {
-      const response = await authService.login(values);
+      const response = await AuthService.login(values);
       console.log(response)
       if (response.success) {
         // Login successful
-        const userData = authService.getUserClaims();
-        authService.applyUserDataToContext(userData, dispatch);
+        const userData = AuthService.getUserClaims();
+        AuthService.applyUserDataToContext(userData, dispatch);
 
         setIsLoginModalVisible(false);
         message.success('Login successful');
@@ -131,7 +134,7 @@ const LoginPanel = () => {
   const handleRegistration = async (values) => {
     setIsLoading(true);
     try {
-      const response = await authService.register(values);
+      const response = await AuthService.register(values);
       console.log(response)
       if (response.success) {
         // Registration successful

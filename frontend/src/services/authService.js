@@ -3,7 +3,7 @@ import axios from 'axios';
 import Cookies from 'js-cookie';
 import {setUserData} from "../context/store";
 
-export const authService = {
+export const AuthService = {
 	register: async (values) => {
 		const response = await axios.post(`${userManagementApiUrl}/register`, values);
 		return response.data;

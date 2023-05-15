@@ -1,4 +1,5 @@
-﻿using GameShopAPI.DTOs.GameGenre;
+﻿using GameShopAPI.DTOs.Company;
+using GameShopAPI.DTOs.GameGenre;
 using GameShopAPI.Models.Base;
 using GameShopAPI.Services.GameGenreService;
 using Microsoft.AspNetCore.Mvc;
@@ -22,6 +23,11 @@ public class GameGenreController : ControllerBase
                                                            int page = 1,
                                                            int pageSize = 10)
         => await _gameGenreService.ReadPageAsync(page, pageSize, filter);
+
+    // GET: api/v1/GameGenre/cards
+    [HttpGet("cards")]
+    public async Task<BaseResponse<GameGenreCard>> GetCards()
+        => await _gameGenreService.ReadCardsAsync();
 
     // GET api/v1/GameGenre/5
     [HttpGet("{id}")]

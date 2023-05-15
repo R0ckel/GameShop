@@ -9,6 +9,6 @@ export const statusCodeToMessage = {
 	},
 	404: {
 		title: 'Not Found',
-		description: 'The requested resource could not be found on the server.',
+		description: 'The requested resource could not be found.',
 	}
 };

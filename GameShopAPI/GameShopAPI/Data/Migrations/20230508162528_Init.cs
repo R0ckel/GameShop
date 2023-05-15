@@ -214,7 +214,7 @@ namespace GameShopAPI.Migrations
                     UPDATE Users
                     SET IsLocked = 1
                     WHERE Id IN (SELECT DISTINCT Id FROM Inserted)
-                    AND AuthFailedCount >= 5;
+                    AND AuthFailedCount >= 10;
                 END
             ");
 

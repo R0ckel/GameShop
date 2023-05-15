@@ -2,7 +2,7 @@ import {userImagesApiUrl, userManagementApiUrl} from "../variables/connectionVar
 import axios from 'axios';
 import {message} from "antd";
 
-export const profileService = {
+export const ProfileService = {
 	getUser: async (id) => {
 		try {
 			const response = await axios.get(`${userManagementApiUrl}/${id}`);
@@ -16,7 +16,15 @@ export const profileService = {
 			const response = await axios.put(`${userManagementApiUrl}/${form.id}`, form, { withCredentials: true });
 			return response.data;
 		} catch (error) {
-			message.error(error.message)
+			console.log(error)
+			if (error.hasOwnProperty(message)) message.error(error.message)
+			else if (error.response){
+				let text = ''
+				for (let err in error.response?.data?.errors){
+					text.concat(err.value)
+				}
+				message.error(text)
+			}
 		}
 	},
 

@@ -5,6 +5,7 @@ using GameShopAPI.Services.ImageService;
 using Microsoft.AspNetCore.Mvc;
 using GameShopAPI.Models.Base;
 using Microsoft.EntityFrameworkCore;
+using GameShopAPI.Models.Domain;
 
 namespace GameShopAPI.Services.UserImageService;
 
@@ -34,12 +35,22 @@ public class UserImageService : IModelImageService<UserResponse>
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                return null;
+                // Create an empty file
+                var result = _imageService.SaveEmpty($"user_{user.Id}_empty");
+                path = result.MainPath;
+
+                // Disable the trigger
+                await _context.Database.ExecuteSqlRawAsync("ALTER TABLE Users DISABLE TRIGGER SetUserLocked");
+
+                user.ImagePath = path;
+                user.ThumbnailImagePath = path;
+                _context.SaveChanges();
+
+                // Re-enable the trigger
+                await _context.Database.ExecuteSqlRawAsync("ALTER TABLE Users ENABLE TRIGGER SetUserLocked");
             }
 
-            var image = await _imageService.GetImageAsync(path);
-
-            return image;
+            return await _imageService.GetImageAsync(path);
         }
         catch (Exception)
         {
@@ -119,6 +130,9 @@ public class UserImageService : IModelImageService<UserResponse>
                 _imageService.DeleteImage(user.ImagePath);
             if (!string.IsNullOrEmpty(user.ThumbnailImagePath))
                 _imageService.DeleteImage(user.ThumbnailImagePath);
+
+            user.ImagePath = null;
+            user.ThumbnailImagePath = null;
 
             await _context.SaveChangesAsync();
 

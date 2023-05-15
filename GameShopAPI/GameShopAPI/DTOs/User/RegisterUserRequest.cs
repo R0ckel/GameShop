@@ -16,6 +16,24 @@ public class RegisterUserRequest
     [Required]
     public DateOnly BirthDate { get; set; }
 
-    [Required]
+    [Required, MinLength(8), MaxLength(64)]
+    [CustomValidation(typeof(RegisterUserRequest), nameof(ValidatePassword))]
     public string Password { get; set; } = string.Empty;
+
+    public static ValidationResult? ValidatePassword(string password, ValidationContext context)
+    {
+        if (string.IsNullOrEmpty(password))
+            return new ValidationResult("Password is required.");
+
+        if (!password.Any(char.IsDigit))
+            return new ValidationResult("Password must contain at least one digit.");
+
+        if (!password.Any(char.IsUpper))
+            return new ValidationResult("Password must contain at least one uppercase letter.");
+
+        if (!password.Any(ch => !char.IsLetterOrDigit(ch)))
+            return new ValidationResult("Password must contain at least one non-letter and non-digit character.");
+
+        return ValidationResult.Success;
+    }
 }

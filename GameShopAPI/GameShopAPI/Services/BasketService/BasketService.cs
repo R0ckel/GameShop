@@ -18,7 +18,7 @@ public class BasketService : IBasketService
         _context = context;
     }
 
-    public async Task<BaseResponse<BasketItemResponse>> AddAsync(AddBasketItemRequest request, Guid userId)
+    public async Task<BaseResponse<BasketItemResponse>> AddAsync(Guid gameId, Guid userId)
     {
         var response = new BaseResponse<BasketItemResponse>();
 
@@ -31,14 +31,14 @@ public class BasketService : IBasketService
                 return response;
             }
 
-            if (!_context.Games.Any(x => x.Id == request.GameId))
+            if (!_context.Games.Any(x => x.Id == gameId))
             {
                 response.Message = "Game not found";
                 response.StatusCode = StatusCodes.Status404NotFound;
                 return response;
             }
 
-            if (_context.BasketItems.Any(x => x.GameId == request.GameId && x.UserId == userId))
+            if (_context.BasketItems.Any(x => x.GameId == gameId && x.UserId == userId))
             {
                 response.Message = "Already in basket";
                 response.StatusCode = StatusCodes.Status400BadRequest;
@@ -48,13 +48,13 @@ public class BasketService : IBasketService
             var basketItem = new BasketItem
             {
                 UserId = userId,
-                GameId = request.GameId
+                GameId = gameId
             };
 
             var entry = _context.BasketItems.Add(basketItem);
             await _context.SaveChangesAsync();
 
-            var game = await _context.Games.FindAsync(request.GameId);
+            var game = await _context.Games.FindAsync(gameId);
             entry.Entity.Game = game;
 
             response.Success = true;
@@ -71,13 +71,13 @@ public class BasketService : IBasketService
         return response;
     }
 
-    public async Task<BaseResponse<BasketItemResponse>> RemoveAsync(RemoveBasketItemRequest request, Guid userId)
+    public async Task<BaseResponse<BasketItemResponse>> RemoveAsync(Guid gameId, Guid userId)
     {
         var response = new BaseResponse<BasketItemResponse>();
 
         try
         {
-            var basketItem = await _context.BasketItems.FindAsync(userId, request.GameId);
+            var basketItem = await _context.BasketItems.FindAsync(userId, gameId);
 
             if (basketItem == null)
             {

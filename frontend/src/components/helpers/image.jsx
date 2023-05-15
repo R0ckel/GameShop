@@ -1,20 +1,20 @@
 import React, {useEffect, useState} from 'react';
-import userIcon from '../../image/user-icon.png'
 
-const Image = ({ imageClassName, containerClassName, src }) => {
-  const [imageSrc, setImageSrc] = useState(userIcon.toString())
+const Image = ({ imageClassName, containerClassName, src, defaultImage }) => {
+  const [imageSrc, setImageSrc] = useState(defaultImage?.toString())
 
   useEffect(()=>{
     setImageSrc(src)
   }, [src])
 
-  const handleError = () => {
-    setImageSrc(userIcon);
+  const handleError = (event) => {
+    event.currentTarget.onerror = null;
+    setImageSrc(defaultImage);
   };
 
   return (
     <div className={containerClassName}>
-      <img src={imageSrc} className={imageClassName} alt="img" onError={handleError} />
+      <img src={imageSrc ? imageSrc : defaultImage} className={imageClassName} alt="img" onError={(event) => handleError(event)} />
     </div>
   );
 };

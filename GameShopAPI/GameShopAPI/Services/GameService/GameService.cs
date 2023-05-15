@@ -63,8 +63,9 @@ public class GameService : IGameService
             response.StatusCode = StatusCodes.Status200OK;
             response.Values.AddRange(games);
             response.ValueCount = games.Count;
-            response.PageCount = (int)Math.Ceiling(await query.CountAsync() / (double)pageSize);
+            response.PageNumber = page;
             response.PageSize = pageSize;
+            response.PageCount = (int)Math.Ceiling(await query.CountAsync() / (double)pageSize);
         }
         catch (Exception ex)
         {

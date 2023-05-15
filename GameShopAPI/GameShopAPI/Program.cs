@@ -48,6 +48,8 @@ app.UseMiddleware<JwtMiddleware>();
 app.UseAuthentication();
 app.UseAuthorization();
 
+app.UseSeedData();
+
 app.MapControllers();
 
 app.Run();

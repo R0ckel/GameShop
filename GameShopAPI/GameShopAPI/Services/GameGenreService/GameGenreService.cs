@@ -2,6 +2,7 @@
 using GameShopAPI.DTOs.GameGenre;
 using GameShopAPI.Extensions.Domain;
 using GameShopAPI.Models.Base;
+using GameShopAPI.Models.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace GameShopAPI.Services.GameGenreService;
@@ -43,8 +44,33 @@ public class GameGenreService : IGameGenreService
             response.StatusCode = StatusCodes.Status200OK;
             response.Values.AddRange(gameGenres);
             response.ValueCount = gameGenres.Count;
-            response.PageCount = (int)Math.Ceiling(await query.CountAsync() / (double)pageSize);
+            response.PageNumber = page;
             response.PageSize = pageSize;
+            response.PageCount = (int)Math.Ceiling(await query.CountAsync() / (double)pageSize);
+        }
+        catch (Exception ex)
+        {
+            response.Message = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+        }
+
+        return response;
+    }
+
+    public async Task<BaseResponse<GameGenreCard>> ReadCardsAsync()
+    {
+        var response = new BaseResponse<GameGenreCard>();
+
+        try
+        {
+            var genres = await _context.GameGenres
+                .Select(x => x.ToCard())
+                .ToListAsync();
+
+            response.Success = true;
+            response.Message = "Success";
+            response.StatusCode = StatusCodes.Status200OK;
+            response.Values.AddRange(genres);
+            response.ValueCount = genres.Count;
         }
         catch (Exception ex)
         {

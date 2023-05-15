@@ -1,4 +1,5 @@
 ﻿using GameShopAPI.DTOs.Company;
+using GameShopAPI.DTOs.GameGenre;
 using GameShopAPI.Models.Domain;
 
 namespace GameShopAPI.Extensions.Domain;
@@ -31,6 +32,15 @@ public static class CompanyExtensions
             Id = company.Id,
             Name = company.Name,
             Country = company.Country
+        };
+    }
+
+    public static CompanyCard ToCard(this Company company)
+    {
+        return new CompanyCard
+        {
+            Id = company.Id,
+            Name = company.Name ?? string.Empty
         };
     }
 }

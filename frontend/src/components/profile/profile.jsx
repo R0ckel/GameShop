@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useParams} from 'react-router-dom';
-import { profileService } from '../../services/profileService';
+import { ProfileService } from '../../services/profileService';
 import { KeyValueTable } from '../helpers/keyValueTable';
 import styles from '../../css/app.module.css';
 import Image from "../helpers/image";
@@ -12,30 +12,31 @@ import {UploadOutlined} from '@ant-design/icons';
 import * as Yup from "yup";
 import {Field, Form, Formik} from "formik";
 import styled from "styled-components";
-import {authService} from "../../services/authService";
+import {AuthService} from "../../services/authService";
+import defaultUserIcon from "../../image/user-icon.png"
 
 const EditProfileSchema = Yup.object().shape({
 	name: Yup.string()
-	.required('Please enter your name!')
 	.max(40, 'First name must be at most 40 characters long'),
 	surname: Yup.string()
-	.required('Please enter your surname!')
 	.max(40, 'Last name must be at most 40 characters long'),
 	email: Yup.string()
-	.required('Please enter your email!')
 	.email('Invalid email address'),
-	birthDate: Yup.date().required('Please, enter your birth date!'),
+	birthDate: Yup.date(),
 	currentPassword: Yup.string().required('Please enter your current password!'),
 	newPassword: Yup.string()
 	.matches(
 		/^(?=.*[A-Z])(?=.*[^a-zA-Z])/,
 		'Password must contain at least one uppercase letter and one non-letter character'
 	)
+	.matches(/\d/, 'Password must contain at least one digit')
 	.min(8, 'Password must be at least 8 characters long')
-	.max(64, 'Password must be at most 64 characters long'),
+	.max(64, 'Password must be at most 64 characters long')
+	.notRequired(),
+
 	confirmPassword: Yup.string()
-		.required('Please confirm your new password!')
-		.oneOf([Yup.ref('newPassword')], 'Passwords must match'),
+	.oneOf([Yup.ref('newPassword')], 'Passwords must match')
+	.notRequired(),
 });
 
 const MarginedLabel = styled("label")`
@@ -52,7 +53,7 @@ const Error = styled("div")`
 
 export const Profile = () => {
 	const [userData, setUserData] = useState({});
-	const { userId } = useSelector(state => state.userData);
+	const { userId, email } = useSelector(state => state.userData);
 	const { id } = useParams();
 	const finalId = id || userId;
 	const formikRef = useRef();
@@ -73,8 +74,7 @@ export const Profile = () => {
 
 	useEffect(() => {
 		const fetchData = async () => {
-			const data = await profileService.getUser(id || userId);
-			console.log(data)
+			const data = await ProfileService.getUser(id || userId);
 			setUserData(data);
 		}
 		if (id || userId) {
@@ -99,7 +99,7 @@ export const Profile = () => {
 		));
 	}
 
-	const updateTime = () =>{
+	const updateTime = () => {
 		console.log('update')
 		setLastUpdateTime(Date.now())
 	}
@@ -107,32 +107,30 @@ export const Profile = () => {
 	const handleEditUserSubmit = async (values) => {
 		setIsSubmitting(true);
 		try{
-			const response = await profileService.updateUser({ ...values, id: finalId });
-			if (response.success) {
+			const response = await ProfileService.updateUser({ ...values, id: finalId });
+			if (response?.success) {
 				setIsEditUserModalOpen(false);
 				message.success(response.message)
 
 				// re-login to update data
-				const email = values.email;
-				const password = values.newPassword;
-				await authService.login({email, password})
-				if (response.success) {
+				const loginEmail = values.email.length > 0 ? values.email : email;
+				const loginPassword = values.newPassword.length > 0 ? values.newPassword : values.currentPassword;
+				const loginResponse = await AuthService.login({email: loginEmail, password: loginPassword})
+				if (loginResponse.success) {
 					// Login successful
-					const userData = authService.getUserClaims();
-					authService.applyUserDataToContext(userData, dispatch);
-					console.log(lastUpdateTime)
+					const userData = AuthService.getUserClaims();
+					AuthService.applyUserDataToContext(userData, dispatch);
 					updateTime()
-					console.log(lastUpdateTime)
 				} else {
 					// Login failed
 					message.error("Error while updating cookie")
 				}
+				formikRef.current.resetForm();
 			} else {
-				message.error(response.message)
+				message.error(response?.message ?? "Unexpected error")
 			}
-			formikRef.current.resetForm();
 		} catch (error){
-			message.error(error.message)
+			message.error(error?.message ?? "Unexpected error")
 		}
 		setIsSubmitting(false);
 	};
@@ -149,7 +147,7 @@ export const Profile = () => {
 
 	const handleEditAvatarOk = async () => {
 		if (fileList.length > 0) {
-			await profileService.putImage(finalId, fileList[0]);
+			await ProfileService.putImage(finalId, fileList[0]);
 			setAvatarUrl(`${userImagesApiUrl}/${finalId}?${Date.now()}`);
 			setFileList([]);
 			setIsEditAvatarModelOpen(false);
@@ -163,16 +161,10 @@ export const Profile = () => {
 		setIsEditAvatarModelOpen(false);
 	};
 
-	return (
-		<div className={styles.centeredInfoBlock}>
-			<h1>Profile</h1>
-			<Image
-				key={avatarUrl}
-				imageClassName={`${styles.profileAvatarSize} ${styles.smoothBorder}`}
-				containerClassName={`${styles.backgroundHighlighted} ${styles.smoothBorder}`}
-				src={avatarUrl}
-			/>
-			{userId === finalId ? (
+	let profilePageContent;
+	if (userId === finalId){
+		profilePageContent = (
+			<>
 				<div style={{display: "flex", justifyContent: "space-evenly", marginTop: "1vh"}}>
 					<Button onClick={() => setIsEditAvatarModelOpen(true)}>Change Image</Button>
 					<Modal
@@ -197,7 +189,7 @@ export const Profile = () => {
 							Modal.confirm({
 								title: 'Are you sure you want to delete the image?',
 								onOk: async () => {
-									await profileService.deleteImage(finalId);
+									await ProfileService.deleteImage(finalId);
 									setAvatarUrl(`${userImagesApiUrl}/${finalId}?${Date.now()}`);
 								},
 							});
@@ -206,86 +198,108 @@ export const Profile = () => {
 						Delete Image
 					</Button>
 				</div>
-			) : null}
 
+				<h3>
+					<KeyValueTable key={`userDataTable_of${finalId}_on_${lastUpdateTime}`} item={userValuesToShow} />
+				</h3>
+
+				<Button onClick={() => setIsEditUserModalOpen(true)}>Update Profile</Button>
+				<Modal
+					title="Update Profile"
+					open={isEditUserModalOpen}
+					onOk={handleEditUserOk}
+					onCancel={handleEditUserCancel}
+					footer={null}
+				>
+					<div style={{display: 'flex', justifyContent: 'center', overflow: 'auto'}}>
+						<Formik
+							initialValues={{
+								name: userData?.values?.[0]?.name ?? '',
+								surname: userData?.values?.[0]?.surname ?? '',
+								email: userData?.values?.[0]?.email ?? '',
+								birthDate: userData?.values?.[0]?.birthDate ?? '',
+								currentPassword: '',
+								newPassword: '',
+								confirmPassword: '',
+							}}
+							innerRef={formikRef}
+							validationSchema={EditProfileSchema}
+							onSubmit={handleEditUserSubmit}
+						>
+							{({ errors, touched }) => (
+								<Form style={{width: '100%'}}>
+									<MarginedLabel htmlFor="name">Name</MarginedLabel>
+									<Field id="name" name="name"
+									       as={Input} autoComplete={'given-name'}/>
+									{errors.name && touched.name ? <Error>{errors.name}</Error> : null}
+
+									<MarginedLabel htmlFor="surname">Surname</MarginedLabel>
+									<Field id="surname" name="surname"
+									       as={Input} autoComplete={'last-name'}/>
+									{errors.surname && touched.surname ? <Error>{errors.surname}</Error> : null}
+
+									<MarginedLabel htmlFor="email">Email</MarginedLabel>
+									<Field id="email" name="email" type="email"
+									       as={Input} autoComplete={'email'}/>
+									{errors.email && touched.email ? <Error>{errors.email}</Error> : null}
+
+									<MarginedLabel htmlFor="birthDate">Birth Date</MarginedLabel>
+									<Field id="birthDate" name="birthDate" type="date"
+									       as={Input} autoComplete={'birth-date'}/>
+									{errors.birthDate && touched.birthDate ? (
+										<Error>{errors.birthDate}</Error>
+									) : null}
+
+									<MarginedLabel htmlFor="currentPassword">Current Password
+										<span style={{ color: 'red' }}> * </span>
+									</MarginedLabel>
+									<Field id="currentPassword" name="currentPassword" type="password"
+									       as={Input.Password} autoComplete={'current-password'}/>
+									{errors.currentPassword && touched.currentPassword ? (
+										<Error>{errors.currentPassword}</Error>
+									) : null}
+
+									<MarginedLabel htmlFor="newPassword">	New Password </MarginedLabel>
+									<Field id="newPassword" name="newPassword" type="password"
+									       as={Input.Password} autoComplete={'password'}/>
+									{errors.newPassword && touched.newPassword ? (
+										<Error>{errors.newPassword}</Error>
+									) : null}
+
+									<MarginedLabel htmlFor="confirmPassword">Confirm New Password</MarginedLabel>
+									<Field id="confirmPassword" name="confirmPassword" type="password"
+									       as={Input.Password} autoComplete={'password'}/>
+									{errors.confirmPassword && touched.confirmPassword ? (
+										<Error>{errors.confirmPassword}</Error>
+									) : null}
+
+									<MarginedButton type="primary" htmlType="submit" loading={isSubmitting}>Update</MarginedButton>
+								</Form>
+							)}
+						</Formik>
+					</div>
+				</Modal>
+			</>
+		)
+	} else {
+		profilePageContent = (
 			<h3>
 				<KeyValueTable key={`userDataTable_of${finalId}_on_${lastUpdateTime}`} item={userValuesToShow} />
 			</h3>
+		)
+	}
 
-			<Button onClick={() => setIsEditUserModalOpen(true)}>Update Profile</Button>
-			<Modal
-				title="Update Profile"
-				open={isEditUserModalOpen}
-				onOk={handleEditUserOk}
-				onCancel={handleEditUserCancel}
-				footer={null}
-			>
-				<div style={{display: 'flex', justifyContent: 'center', overflow: 'auto'}}>
-					<Formik
-						initialValues={{
-							name: userData?.values?.[0]?.name ?? '',
-							surname: userData?.values?.[0]?.surname ?? '',
-							email: userData?.values?.[0]?.email ?? '',
-							birthDate: userData?.values?.[0]?.birthDate ?? '',
-							currentPassword: '',
-							newPassword: '',
-							confirmPassword: '',
-						}}
-						innerRef={formikRef}
-						validationSchema={EditProfileSchema}
-						onSubmit={handleEditUserSubmit}
-					>
-						{({ errors, touched }) => (
-							<Form style={{width: '100%'}}>
-								<MarginedLabel htmlFor="name">Name</MarginedLabel>
-								<Field id="name" name="name"
-								       as={Input} autoComplete={'given-name'}/>
-								{errors.name && touched.name ? <Error>{errors.name}</Error> : null}
-
-								<MarginedLabel htmlFor="surname">Surname</MarginedLabel>
-								<Field id="surname" name="surname"
-								       as={Input} autoComplete={'last-name'}/>
-								{errors.surname && touched.surname ? <Error>{errors.surname}</Error> : null}
-
-								<MarginedLabel htmlFor="email">Email</MarginedLabel>
-								<Field id="email" name="email" type="email"
-								       as={Input} autoComplete={'email'}/>
-								{errors.email && touched.email ? <Error>{errors.email}</Error> : null}
-
-								<MarginedLabel htmlFor="birthDate">Birth Date</MarginedLabel>
-								<Field id="birthDate" name="birthDate" type="date"
-								       as={Input} autoComplete={'birth-date'}/>
-								{errors.birthDate && touched.birthDate ? (
-									<Error>{errors.birthDate}</Error>
-								) : null}
-
-								<MarginedLabel htmlFor="currentPassword">Current Password</MarginedLabel>
-								<Field id="currentPassword" name="currentPassword" type="password"
-								       as={Input.Password} autoComplete={'current-password'}/>
-								{errors.currentPassword && touched.currentPassword ? (
-									<Error>{errors.currentPassword}</Error>
-								) : null}
-
-								<MarginedLabel htmlFor="newPassword">New Password</MarginedLabel>
-								<Field id="newPassword" name="newPassword" type="password"
-								       as={Input.Password} autoComplete={'password'}/>
-								{errors.newPassword && touched.newPassword ? (
-									<Error>{errors.newPassword}</Error>
-								) : null}
-
-								<MarginedLabel htmlFor="confirmPassword">Confirm New Password</MarginedLabel>
-								<Field id="confirmPassword" name="confirmPassword" type="password"
-								       as={Input.Password} autoComplete={'password'}/>
-								{errors.confirmPassword && touched.confirmPassword ? (
-									<Error>{errors.confirmPassword}</Error>
-								) : null}
-
-								<MarginedButton type="primary" htmlType="submit" loading={isSubmitting}>Update</MarginedButton>
-							</Form>
-						)}
-					</Formik>
-				</div>
-			</Modal>
+	return (
+		<div className={styles.centeredInfoBlock}>
+			<h1>Profile</h1>
+			<Image
+				key={avatarUrl}
+				imageClassName={`${styles.profileAvatarSize} ${styles.smoothBorder}`}
+				containerClassName={`${styles.backgroundHighlighted} ${styles.smoothBorder}`}
+				src={avatarUrl}
+				defaultImage={defaultUserIcon}
+			/>
+			{profilePageContent}
 		</div>
 	);
 }

@@ -43,8 +43,9 @@ public class CommentService : ICommentService
             response.StatusCode = StatusCodes.Status200OK;
             response.Values.AddRange(comments);
             response.ValueCount = comments.Count;
-            response.PageCount = (int)Math.Ceiling(await query.CountAsync() / (double)pageSize);
+            response.PageNumber = page;
             response.PageSize = pageSize;
+            response.PageCount = (int)Math.Ceiling(await query.CountAsync() / (double)pageSize);
         }
         catch (Exception ex)
         {

@@ -4,6 +4,8 @@ using GameShopAPI.Models.Base;
 using GameShopAPI.Services.IModelImageService;
 using GameShopAPI.Services.ImageService;
 using Microsoft.AspNetCore.Mvc;
+using GameShopAPI.Models.Domain;
+using Microsoft.EntityFrameworkCore;
 
 namespace GameShopAPI.Services.GameImagesService;
 
@@ -33,12 +35,16 @@ public class GameImageService : IModelImageService<GameResponse>
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                return null;
+                // Create an empty file
+                var result = _imageService.SaveEmpty($"game_{game.Id}_empty");
+                path = result.MainPath;
+
+                game.ImagePath = path;
+                game.ThumbnailImagePath = path;
+                _context.SaveChanges();
             }
 
-            var image = await _imageService.GetImageAsync(path);
-
-            return image;
+            return await _imageService.GetImageAsync(path);
         }
         catch (Exception)
         {
@@ -112,6 +118,9 @@ public class GameImageService : IModelImageService<GameResponse>
                 _imageService.DeleteImage(game.ImagePath);
             if (!string.IsNullOrEmpty(game.ThumbnailImagePath))
                 _imageService.DeleteImage(game.ThumbnailImagePath);
+
+            game.ImagePath = string.Empty;
+            game.ThumbnailImagePath = string.Empty;
 
             await _context.SaveChangesAsync();
 

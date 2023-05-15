@@ -125,6 +125,10 @@ public class UserService : IUserService
             {
                 response.StatusCode = StatusCodes.Status403Forbidden;
                 response.Message = "Old password don`t match";
+
+                await _context.Database.ExecuteSqlRawAsync(
+                    "UPDATE Users SET AuthFailedCount = AuthFailedCount + 1 WHERE Id = {0}", user.Id);
+
                 return response;
             }
 

@@ -7,6 +7,7 @@ public class BaseResponse<T>
     public int StatusCode { get; set; } = StatusCodes.Status400BadRequest;
     public int ValueCount { get; set; } = 0;
     public List<T> Values { get; set; } = new List<T>();
-    public int PageCount { get; set; } = 0;
+    public int PageNumber { get; set; } = 0;
     public int PageSize { get; set; } = 10;
+    public int PageCount { get; set; } = 0;
 }

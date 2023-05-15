@@ -12,11 +12,11 @@ namespace GameShopAPI.Controllers;
 [Authorize]
 public class BasketController : ControllerBase
 {
-    private IBasketService _commentService;
+    private IBasketService _basketService;
 
-    public BasketController(IBasketService commentService)
+    public BasketController(IBasketService basketService)
     {
-        _commentService = commentService;
+        _basketService = basketService;
     }
 
     // GET api/v1/Basket
@@ -34,12 +34,12 @@ public class BasketController : ControllerBase
         }
 
         var userId = Guid.Parse(user);
-        return await _commentService.ReadAsync(userId);
+        return await _basketService.ReadAsync(userId);
     }
 
     // POST api/v1/Basket/add
-    [HttpPost("add")]
-    public async Task<BaseResponse<BasketItemResponse>> AddItem([FromBody] AddBasketItemRequest request)
+    [HttpPost("add/{id}")]
+    public async Task<BaseResponse<BasketItemResponse>> AddItem(Guid id)
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (user == null)
@@ -52,12 +52,12 @@ public class BasketController : ControllerBase
         }
 
         var userId = Guid.Parse(user);
-        return await _commentService.AddAsync(request, userId);
+        return await _basketService.AddAsync(id, userId);
     }
 
     // DELETE api/v1/Basket/remove
-    [HttpDelete("remove")]
-    public async Task<BaseResponse<BasketItemResponse>> Delete([FromBody] RemoveBasketItemRequest request)
+    [HttpDelete("remove/{id}")]
+    public async Task<BaseResponse<BasketItemResponse>> Delete(Guid id)
     {
         var user = User.FindFirstValue(ClaimTypes.NameIdentifier);
         if (user == null)
@@ -70,7 +70,7 @@ public class BasketController : ControllerBase
         }
 
         var userId = Guid.Parse(user);
-        return await _commentService.RemoveAsync(request, userId);
+        return await _basketService.RemoveAsync(id, userId);
     }
 
     // DELETE api/v1/Basket/clear
@@ -88,7 +88,7 @@ public class BasketController : ControllerBase
         }
 
         var userId = Guid.Parse(user);
-        return await _commentService.RemoveAllAsync(userId);
+        return await _basketService.RemoveAllAsync(userId);
     }
 
     // GET api/v1/Basket/total
@@ -106,6 +106,6 @@ public class BasketController : ControllerBase
         }
 
         var userId = Guid.Parse(user);
-        return await _commentService.GetBasketTotalPrice(userId);
+        return await _basketService.GetBasketTotalPrice(userId);
     }
 }

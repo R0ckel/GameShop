@@ -1,20 +1,20 @@
-.item-enter {
+.itemEnter {
   opacity: 0;
   transform: scale(0.7);
 }
 
-.item-exit {
+.itemExit {
   opacity: 1;
   transform: scale(1);
 }
 
-.item-exit-active {
+.itemExitActive {
   opacity: 0;
   transform: scale(0.7);
   transition: opacity 500ms, transform 500ms;
 }
 
-.item-enter-active {
+.itemEnterActive {
   opacity: 1;
   transform: scale(1);
   transition: opacity 500ms, transform 500ms;

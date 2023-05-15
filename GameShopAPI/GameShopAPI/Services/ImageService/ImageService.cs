@@ -12,6 +12,30 @@ public class ImageService : IImageService
         return new FileContentResult(imageData, "image/jpeg");
     }
 
+    public SaveImageResult SaveEmpty(string path)
+    {
+        var result = new SaveImageResult();
+        try
+        {
+            var imagesDirectory = Path.Combine(Directory.GetCurrentDirectory(), "Images");
+            if (!Directory.Exists(imagesDirectory))
+            {
+                Directory.CreateDirectory(imagesDirectory);
+            }
+            var filePath = Path.Combine("Images", $"{path}.jpg");
+
+            File.Create(filePath).Close();
+
+            result.Success = true;
+            result.MainPath = filePath;
+        }
+        catch (Exception ex)
+        {
+            result.ErrorMessage = ex.InnerException != null ? ex.InnerException.Message : ex.Message;
+        }
+        return result;
+    }
+
     public async Task<SaveImageResult> SaveImageAsync(SaveImageModel info)
     {
         var result = new SaveImageResult();
