@@ -41,4 +41,30 @@ export const BasketService = {
 			}
 		}
 	},
+
+	getTotal: async () => {
+		try{
+			const response = await axios.get(`${basketApiUrl}/total`, { withCredentials: true })
+			return response.data;
+		} catch (error) {
+			if (error.response && error.response.status === 401) {
+				message.error("Unauthorized move has been detected! You must login first!");
+			} else {
+				message.error(`Error occurred! Message: ${error.message}`);
+			}
+		}
+	},
+
+	clear: async () => {
+		try{
+			const response = await axios.delete(`${basketApiUrl}/clear`, { withCredentials: true })
+			return response.data;
+		} catch (error) {
+			if (error.response && error.response.status === 401) {
+				message.error("Unauthorized move has been detected! You must login first!");
+			} else {
+				message.error(`Error occurred! Message: ${error.message}`);
+			}
+		}
+	}
 }

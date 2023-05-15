@@ -147,10 +147,12 @@ export const Profile = () => {
 
 	const handleEditAvatarOk = async () => {
 		if (fileList.length > 0) {
+			setIsSubmitting(true)
 			await ProfileService.putImage(finalId, fileList[0]);
 			setAvatarUrl(`${userImagesApiUrl}/${finalId}?${Date.now()}`);
 			setFileList([]);
 			setIsEditAvatarModelOpen(false);
+			setIsSubmitting(false)
 		} else{
 			message.warning("Upload an image!")
 		}
@@ -180,7 +182,7 @@ export const Profile = () => {
 							}}
 							fileList={fileList}
 						>
-							<Button icon={<UploadOutlined />}>Select File</Button>
+							<Button icon={<UploadOutlined />} loading={isSubmitting}>Select File</Button>
 						</Upload>
 					</Modal>
 

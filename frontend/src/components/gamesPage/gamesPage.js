@@ -8,19 +8,21 @@ import {BasketService} from "../../services/basketService";
 import CheckTableHeader from "./checkTable/checkTableHeader";
 import styles from "../../css/app.module.css"
 import CheckTableRow from "./checkTable/checkTableRow";
-import {useSelector} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 import {gameImagesApiUrl} from "../../variables/connectionVariables";
 import defaultGameThumbnail from '../../image/game-icon.png';
 import {Button, Form, Input, Pagination, Select} from 'antd';
+import {updateBasketData} from "../../context/store";
 
 export function GamesPage() {
 	const [companies, setCompanies] = useState({});
 	const [genres, setGenres] = useState({});
 	const [games, setGames] = useState({});
-	const [basketData, setBasketData] = useState({});
-	const [itemsSelected, setItemsSelected] = useState(0);
+	const basketData = useSelector(state => state.basketData);
 	const {isLoggedIn} = useSelector(state => state.userData);
 	const [gameCards, setGameCards] = useState([]);
+	const dispatch = useDispatch();
+	const [timeBasketChanged, setTimeBasketChanged] = useState(Date.now());
 
 	//filters
 	const { Option } = Select;
@@ -76,25 +78,29 @@ export function GamesPage() {
 			setCompanies(companiesResponse);
 			setGenres(genresResponse);
 			setGames(gamesResponse);
-
-			if (isLoggedIn) {
-				const basketDataResponse = await BasketService.getBasket();
-				setBasketData(basketDataResponse);
-				if (basketDataResponse?.valueCount != null) setItemsSelected(basketDataResponse.valueCount)
-			}
 		}
 
 		fetchData();
-	}, [isLoggedIn]);
+	}, [dispatch, isLoggedIn]);
+	
+	useEffect(() => {
+		async function updateBasket(){
+			if (isLoggedIn) {
+				const basketDataResponse = await BasketService.getBasket();
+				dispatch(updateBasketData(basketDataResponse));
+			}
+		}
+		updateBasket();
+	}, [dispatch, isLoggedIn, timeBasketChanged])
 
 	async function toggleBasketItem(gameId, checked){
 		if (checked) {
 			await BasketService.addItem(gameId)
-			setItemsSelected(itemsSelected + 1)
+			setTimeBasketChanged(Date.now())
 		}
 		else {
 			await BasketService.removeItem(gameId)
-			setItemsSelected(itemsSelected - 1)
+			setTimeBasketChanged(Date.now())
 		}
 	}
 
@@ -118,9 +124,12 @@ export function GamesPage() {
 					};
 				}));
 	}, [games])
+
 	return (
 		<div className={styles.centeredInfoBlock} style={{width: '90%'}}>
-			<CheckListHeader shown={gameCards?.length} selected={itemsSelected}/>
+			<CheckListHeader shown={gameCards?.length}
+			                 key={`clHeader_${basketData.values.length}_${basketData.success}`}
+			                 selected={basketData?.values.length ?? 0}/>
 
 			<Form layout="inline" className={styles.filterForm}>
 				<div className={styles.inlineForm}>
@@ -192,10 +201,10 @@ export function GamesPage() {
 						<CheckTableRow
 							thumbnailSrc={`${gameImagesApiUrl}/${item.id}?thumbnail=true&${Date.now()}`}
 							defaultThumbnailSrc={defaultGameThumbnail}
-							isChecked={basketData?.values?.filter(x => x.gameId === item.id ).length > 0}
+							isChecked={basketData?.values.filter(x => x.gameId === item.id ).length > 0}
 							item={item}
 							cardViewFields={['name', 'company', 'genres', 'price']}
-							key={`${item.id.toString()}_${basketData?.success}`}
+							key={`${item.id.toString()}_${basketData?.values.filter(x => x.gameId === item.id)[0]}`}
 							updateSender={toggleBasketItem}
 						/>
 					))}

@@ -20,10 +20,28 @@ const userDataSlice = createSlice({
 	}
 })
 
+const basketDataSlice = createSlice({
+	name: 'basketData',
+	initialState: {
+		values: [],
+		success: false,
+		valueCount: 0
+	},
+	reducers: {
+		updateBasketData(state, action){
+			state.values = action.payload.values ?? [];
+			state.success = action.payload.success ?? false;
+			state.valueCount = action.payload.valueCount ?? 0;
+		}
+	}
+})
+
 export const store = configureStore({
 	reducer: {
 		userData: userDataSlice.reducer,
+		basketData: basketDataSlice.reducer
 	}
 })
 
 export const {setUserData} = userDataSlice.actions
+export const {updateBasketData} = basketDataSlice.actions
