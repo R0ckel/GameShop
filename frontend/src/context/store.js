@@ -23,15 +23,19 @@ const userDataSlice = createSlice({
 const basketDataSlice = createSlice({
 	name: 'basketData',
 	initialState: {
-		values: [],
-		success: false,
-		valueCount: 0
+		basketItems: [],
+		basketSuccess: false,
+		basketItemsCount: 0,
+		lastLocalBasketUpdateTime: null
 	},
 	reducers: {
 		updateBasketData(state, action){
-			state.values = action.payload.values ?? [];
-			state.success = action.payload.success ?? false;
-			state.valueCount = action.payload.valueCount ?? 0;
+			state.basketItems = action.payload?.values ?? [];
+			state.basketSuccess = action.payload?.success ?? false;
+			state.basketItemsCount = action.payload?.valueCount ?? 0;
+		},
+		basketUpdated(state){
+			state.lastLocalBasketUpdateTime = Date.now()
 		}
 	}
 })
@@ -44,4 +48,4 @@ export const store = configureStore({
 })
 
 export const {setUserData} = userDataSlice.actions
-export const {updateBasketData} = basketDataSlice.actions
+export const {updateBasketData, basketUpdated} = basketDataSlice.actions

@@ -8,7 +8,7 @@ import {Button, Input, message, Modal} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 import {AuthService} from "../../../services/authService";
 import {Link, useNavigate} from "react-router-dom";
-import {setUserData} from "../../../context/store";
+import {setUserData, updateBasketData} from "../../../context/store";
 
 const NameSpan = styled.span`
   margin: 0;
@@ -73,7 +73,7 @@ const RegistrationSchema = Yup.object().shape({
   birthDate: Yup.date()
   .required('Please, enter your birth date!'),
 
-  newPassword: Yup.string()
+  password: Yup.string()
   .matches(
     /^(?=.*[A-Z])(?=.*[^a-zA-Z])/,
     'Password must contain at least one uppercase letter and one non-letter character'
@@ -84,7 +84,7 @@ const RegistrationSchema = Yup.object().shape({
   .required('Enter your password!'),
 
   confirmPassword: Yup.string()
-  .oneOf([Yup.ref('newPassword')], 'Passwords must match')
+  .oneOf([Yup.ref('password')], 'Passwords must match')
   .required('Confirm your password!'),
 });
 
@@ -100,6 +100,7 @@ const LoginPanel = () => {
     const response = await AuthService.logout()
     if (response.success){
       dispatch(setUserData({isLoggedIn: false}))
+      dispatch(updateBasketData())
       navigate('/');
     } else {
       message.error("Error while logout!")

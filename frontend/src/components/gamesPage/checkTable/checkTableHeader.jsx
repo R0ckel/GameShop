@@ -1,19 +1,21 @@
 import React from 'react';
 import styles from "../../../css/app.module.css"
+import {useSelector} from "react-redux";
 
 export default function CheckTableHeader({template, cardViewFields, withImage = false}) {
-	const tableCells = [];
-	if (withImage) tableCells.push("Thumbnail")
-	for (const key in template) {
-		if (Object.hasOwnProperty.call(template, key)
-			&& cardViewFields.includes(key)
-		) {
-			tableCells.push(key);
-		}
-	}
-	tableCells.push("Checked");
-	tableCells.push("Action");
+	const {isLoggedIn} = useSelector(state => state.userData)
+
 	if (template) {
+		const tableCells = [];
+		if (withImage) tableCells.push("Thumbnail");
+		for (const key of cardViewFields) {
+			if (Object.hasOwnProperty.call(template, key)) {
+				tableCells.push(key);
+			}
+		}
+		if (isLoggedIn) tableCells.push("Checked");
+		tableCells.push("Action");
+
 		return (
 			<thead className={`${styles.capitalize}`}>
 			<tr>

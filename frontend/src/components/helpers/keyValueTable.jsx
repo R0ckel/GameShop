@@ -2,6 +2,7 @@ import React from 'react';
 import styles from '../../css/app.module.css';
 
 export const KeyValueTable = ({item}) => {
+  if (item == null) return <></>;
   const rows = Object.keys(item).map((key) => ({key: key, value: item[key]}));
 
   return (

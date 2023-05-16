@@ -15,11 +15,12 @@ const CheckTableRow = ({item, cardViewFields, updateSender, isChecked, thumbnail
 		setCheck(!checked);
 	}
 
-	const cells = Object.entries(item)
-	.filter(([key]) => cardViewFields.includes(key))
-	.map(([key, val]) => (
-		<td key={`${item.id}${key}${val}`}>{val}</td>
-	));
+	const cells = cardViewFields.map(field => {
+		const val = item[field];
+		return val ? (
+			<td key={`${item.id}${field}${val}`}>{field === 'price'? `${val}$`: val}</td>
+		) : null;
+	});
 
 	const handleCheck = () => {
 		if (!isLoggedIn) {
@@ -41,20 +42,23 @@ const CheckTableRow = ({item, cardViewFields, updateSender, isChecked, thumbnail
 				</td>
 			}
 			{cells}
-			<td>
-				<div className={checkboxStyle["checkbox-wrapper"]}>
-					<input
-						type="checkbox"
-						id={item.id + "_checkbox"}
-						defaultChecked={checked}
-						disabled={!isLoggedIn}
-					/>
-					<label htmlFor={item.id + "_checkbox"}
-					       className={checkboxStyle["check-box"]}
-					       onClick={handleCheck}>
-					</label>
-				</div>
-			</td>
+			{isLoggedIn ?
+				<td>
+					<div className={checkboxStyle["checkbox-wrapper"]}>
+						<input
+							type="checkbox"
+							id={item.id + "_checkbox"}
+							defaultChecked={checked}
+							disabled={!isLoggedIn}
+						/>
+						<label htmlFor={item.id + "_checkbox"}
+						       className={checkboxStyle["check-box"]}
+						       onClick={handleCheck}>
+						</label>
+					</div>
+				</td>
+				: null
+			}
 			<td>
 				<Link to={`/games/${item.id}`}>
 					<button className={`${styles.btn} ${styles.info}`}>

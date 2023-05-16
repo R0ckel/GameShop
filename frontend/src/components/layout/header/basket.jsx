@@ -1,23 +1,34 @@
 import { useState, useEffect } from 'react';
 import {Modal, Table, Button, message} from 'antd';
 import { ShoppingCartOutlined } from '@ant-design/icons';
-import { BasketService } from '../../../services/basketService';
+import { BasketService } from '../../../services/domain/basketService';
 import {useDispatch, useSelector} from "react-redux";
 import {updateBasketData} from "../../../context/store";
 
 export function Basket() {
 	const [open, setOpen] = useState(false);
-	const {values, success} = useSelector(state => state.basketData)
+	const {basketItems, basketSuccess, lastLocalBasketUpdateTime} = useSelector(state => state.basketData)
+	const {isLoggedIn} = useSelector(state => state.userData)
 	const dispatch = useDispatch();
 	const [total, setTotal] = useState(0);
 
 	useEffect(() => {
-		async function fetchData() {
-			const totalResponse = await BasketService.getTotal();
-			setTotal(totalResponse.values[0])
+		async function updateBasket(){
+			if (isLoggedIn) {
+				const basketDataResponse = await BasketService.getBasket();
+				dispatch(updateBasketData(basketDataResponse));
+			}
 		}
-		fetchData();
-	}, [dispatch, values, success]);
+		updateBasket();
+	}, [dispatch, isLoggedIn, lastLocalBasketUpdateTime])
+
+	useEffect(() => {
+		async function fetchTotal(){
+			const totalResponse = await BasketService.getTotal();
+			setTotal(totalResponse?.values[0] ?? 0)
+		}
+		fetchTotal();
+	}, [dispatch, basketItems, basketSuccess]);
 
 	const handleRemove = async (gameId) => {
 		await BasketService.removeItem(gameId);
@@ -26,14 +37,19 @@ export function Basket() {
 	};
 
 	const handleConfirmPurchase = async () => {
-		await BasketService.clear();
-		dispatch(updateBasketData({}))
-		setOpen(false);
+		Modal.confirm({
+			title: `Are you confirming your purchase? (${total}$)`,
+			onOk: async () => {
+				await BasketService.clear();
+				dispatch(updateBasketData({}))
+				setOpen(false);
 
-		message.success('Purchase confirmed!');
-		setTimeout(() => {
-			message.success(`Total price of purchase: ${total}`);
-		}, 3000);
+				message.success('Purchase confirmed!');
+				setTimeout(() => {
+					message.success(`Total price of purchase: ${total}`);
+				}, 3000);
+			},
+		});
 	};
 
 	const columns = [
@@ -47,6 +63,9 @@ export function Basket() {
 			title: 'Game Price',
 			dataIndex: 'gamePrice',
 			key: 'gamePrice',
+			render:(record) => (
+				`${record}$`
+			),
 			align: 'center'
 		},
 		{
@@ -61,9 +80,9 @@ export function Basket() {
 
 	return (
 		<>
-			<ShoppingCartOutlined style={{fontSize: '30px', margin: 'auto'}} onClick={() => setOpen(true)} />
+			<ShoppingCartOutlined style={{fontSize: '30px', margin: 'auto 1vw'}} onClick={() => setOpen(true)} />
 			<Modal
-				style={{minWidth: '80vw'}}
+				style={{minWidth: 'calc(min(800px, 80vw))'}}
 				title="Basket"
 				open={open}
 				onCancel={() => setOpen(false)}
@@ -72,18 +91,18 @@ export function Basket() {
 						Cancel
 					</Button>,
 					<Button key="submit" type="primary" onClick={handleConfirmPurchase}
-					        disabled={values?.length === 0 ?? 0}>
+					        disabled={basketItems?.length === 0 ?? 0}>
 						Confirm Purchase
 					</Button>,
 				]}
 			>
 				<Table
-					key={`${values.length}_${success}`}
+					key={`${basketItems?.length}_${basketSuccess}`}
 					columns={columns}
-					dataSource={values?.map((item) => ({ ...item, key: item.gameId }))}
+					dataSource={basketItems?.map((item) => ({ ...item, key: item.gameId }))}
 					pagination={false}
 				/>
-				<h1 style={{margin: 'auto 20px auto auto', width: 'fit-content'}}>Total Price: {total}</h1>
+				<h1 style={{margin: 'auto 20px auto auto', width: 'fit-content'}}>Total Price: {total}$</h1>
 			</Modal>
 		</>
 	);

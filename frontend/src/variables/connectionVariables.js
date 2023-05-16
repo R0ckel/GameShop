@@ -7,3 +7,4 @@ export const gamesApiUrl = `${apiUrl}/game`;
 export const gameImagesApiUrl = `${apiUrl}/gameImages`;
 export const gameGenresApiUrl = `${apiUrl}/gameGenre`;
 export const companiesApiUrl = `${apiUrl}/company`;
+export const commentsApiUrl = `${apiUrl}/comment`;

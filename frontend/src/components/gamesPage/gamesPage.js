@@ -1,10 +1,10 @@
-import {CompaniesService} from "../../services/companiesService";
-import {GameGenresService} from "../../services/gameGenresService";
-import {GamesService} from "../../services/gamesService";
+import {CompaniesService} from "../../services/domain/companiesService";
+import {GameGenresService} from "../../services/domain/gameGenresService";
+import {GamesService} from "../../services/domain/gamesService";
 
 import { useState, useEffect } from 'react';
 import {CheckListHeader} from "./checkTable/checkListHeader";
-import {BasketService} from "../../services/basketService";
+import {BasketService} from "../../services/domain/basketService";
 import CheckTableHeader from "./checkTable/checkTableHeader";
 import styles from "../../css/app.module.css"
 import CheckTableRow from "./checkTable/checkTableRow";
@@ -12,7 +12,7 @@ import {useDispatch, useSelector} from "react-redux";
 import {gameImagesApiUrl} from "../../variables/connectionVariables";
 import defaultGameThumbnail from '../../image/game-icon.png';
 import {Button, Form, Input, Pagination, Select} from 'antd';
-import {updateBasketData} from "../../context/store";
+import {basketUpdated} from "../../context/store";
 
 export function GamesPage() {
 	const [companies, setCompanies] = useState({});
@@ -22,7 +22,7 @@ export function GamesPage() {
 	const {isLoggedIn} = useSelector(state => state.userData);
 	const [gameCards, setGameCards] = useState([]);
 	const dispatch = useDispatch();
-	const [timeBasketChanged, setTimeBasketChanged] = useState(Date.now());
+	const cardViewFields = ['name', 'companyName', 'genres', 'price'];
 
 	//filters
 	const { Option } = Select;
@@ -59,49 +59,26 @@ export function GamesPage() {
 	};
 	//filters
 
-	//pagination
-	const handlePageChange = async (page) => {
-		await handleFilterChange('page', page);
-	};
-
-	const handlePageSizeChange = async (current, size) => {
-		await handleFilterChange('pageSize', size);
-	};
-	//pagination
-
 	useEffect(() => {
 		async function fetchData() {
 			const companiesResponse = await CompaniesService.getCards();
 			const genresResponse = await GameGenresService.getCards();
-			const gamesResponse = await GamesService.get();
 
 			setCompanies(companiesResponse);
 			setGenres(genresResponse);
-			setGames(gamesResponse);
 		}
 
 		fetchData();
 	}, [dispatch, isLoggedIn]);
-	
-	useEffect(() => {
-		async function updateBasket(){
-			if (isLoggedIn) {
-				const basketDataResponse = await BasketService.getBasket();
-				dispatch(updateBasketData(basketDataResponse));
-			}
-		}
-		updateBasket();
-	}, [dispatch, isLoggedIn, timeBasketChanged])
 
 	async function toggleBasketItem(gameId, checked){
 		if (checked) {
 			await BasketService.addItem(gameId)
-			setTimeBasketChanged(Date.now())
 		}
 		else {
 			await BasketService.removeItem(gameId)
-			setTimeBasketChanged(Date.now())
 		}
+		dispatch(basketUpdated());
 	}
 
 	useEffect(() => {
@@ -128,8 +105,8 @@ export function GamesPage() {
 	return (
 		<div className={styles.centeredInfoBlock} style={{width: '90%'}}>
 			<CheckListHeader shown={gameCards?.length}
-			                 key={`clHeader_${basketData.values.length}_${basketData.success}`}
-			                 selected={basketData?.values.length ?? 0}/>
+			                 key={`clHeader_${basketData?.basketItems?.length}_${basketData?.basketSuccess}`}
+			                 selected={basketData?.basketItems?.length ?? 0}/>
 
 			<Form layout="inline" className={styles.filterForm}>
 				<div className={styles.inlineForm}>
@@ -195,16 +172,16 @@ export function GamesPage() {
 			</Form>
 
 			<table className={styles.smoothTable}>
-				<CheckTableHeader withImage={true} cardViewFields={['name', 'company', 'genres', 'price']} template={gameCards[0]}/>
+				<CheckTableHeader withImage={true} cardViewFields={cardViewFields} template={gameCards[0]}/>
 				<tbody>
 					{gameCards.map(item => (
 						<CheckTableRow
 							thumbnailSrc={`${gameImagesApiUrl}/${item.id}?thumbnail=true&${Date.now()}`}
 							defaultThumbnailSrc={defaultGameThumbnail}
-							isChecked={basketData?.values.filter(x => x.gameId === item.id ).length > 0}
+							isChecked={basketData?.basketItems?.filter(x => x.gameId === item.id ).length > 0}
 							item={item}
-							cardViewFields={['name', 'company', 'genres', 'price']}
-							key={`${item.id.toString()}_${basketData?.values.filter(x => x.gameId === item.id)[0]}`}
+							cardViewFields={cardViewFields}
+							key={`${item.id.toString()}_${basketData?.basketItems?.filter(x => x.gameId === item.id)[0]}`}
 							updateSender={toggleBasketItem}
 						/>
 					))}
@@ -217,8 +194,8 @@ export function GamesPage() {
 					? games?.pageCount * games?.pageSize
 					: 1 }
 				pageSize={games?.pageSize ?? 10}
-				onChange={handlePageChange}
-				onShowSizeChange={handlePageSizeChange}
+				onChange={value => handleFilterChange('page', value)}
+				onShowSizeChange={(current, size) => handleFilterChange('pageSize', size)}
 				showSizeChanger
 				pageSizeOptions={['2', '5', '10', '20', '50']}
 				style={{backgroundColor: 'rgba(255, 255, 255, 0.3)'}}

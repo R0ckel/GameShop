@@ -1,4 +1,4 @@
-import {userImagesApiUrl, userManagementApiUrl} from "../variables/connectionVariables";
+import {userImagesApiUrl, userManagementApiUrl} from "../../variables/connectionVariables";
 import axios from 'axios';
 import {message} from "antd";
 

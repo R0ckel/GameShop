@@ -33,6 +33,7 @@ public class CommentService : ICommentService
             }
 
             var comments = await query
+                .OrderByDescending(x => x.Created)
                 .Skip((page - 1) * pageSize)
                 .Take(pageSize)
                 .Select(x => x.ToResponse())

@@ -1,4 +1,4 @@
-import {basketApiUrl} from "../variables/connectionVariables";
+import {basketApiUrl} from "../../variables/connectionVariables";
 import {message} from "antd";
 import axios from "axios";
 

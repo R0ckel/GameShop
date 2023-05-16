@@ -2,9 +2,24 @@ body{
   background-color: #224;
   color: #fff;
 }
+body::before {
+  content: '';
+  display: block;
+  position: fixed;
+  z-index: -1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.05;
+  background-image: url('../image/React-icon.png');
+  background-repeat: repeat-y;
+  background-position: center top;
+  background-size: cover;
+}
 
 .wrapper::before{
-  content: ' ';
+  content: '';
   display: block;
   position: absolute;
   z-index: -100;
@@ -12,11 +27,6 @@ body{
   top: 0;
   width: 100%;
   height: 100%;
-  opacity: 0.05;
-  background-image: url('../image/React-icon.png');
-  background-repeat: no-repeat;
-  background-position: 50% 0;
-  background-size: cover;
 }
 
 header{
@@ -281,12 +291,18 @@ input[type="submit"]:hover {
   margin: auto;
 }
 .profileAvatarSize{
-  height: 30vh;
+  height: calc(min(40vh, 40vw));
+  margin: 1vh;
+}
+.gamePictureSize{
+  width: 30vw;
   margin: 1vh;
 }
 .thumbnail{
   height: 5.5vh;
   margin-top: 0.5vh;
+  margin-left: auto;
+  margin-right: auto;
 }
 .backgroundHighlighted{
   background: rgba(255, 255, 255, 0.05);
@@ -310,4 +326,30 @@ input[type="submit"]:hover {
 }
 .inlineForm > *{
   margin-top: 1vh;
+}
+.comment{
+  padding: 10px;
+  margin: 1vh auto;
+  display: flex;
+  width: calc(min(1000px, 90vw));
+  border-radius: 1vh;
+}
+.commentSidebar{
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  min-width: 120px;
+}
+.commentSidebar *{
+  margin: 0;
+  text-align: center;
+}
+.commentTextBlock{
+  flex-grow: 1;
+  padding: 10px;
+  margin: auto 1vh;
+}
+.wideButton{
+  margin: 3vh auto;
+  width: 40%;
 }

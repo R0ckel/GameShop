@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react';
 import {useDispatch, useSelector} from 'react-redux';
 import {useParams} from 'react-router-dom';
-import { ProfileService } from '../../services/profileService';
+import { ProfileService } from '../../services/domain/profileService';
 import { KeyValueTable } from '../helpers/keyValueTable';
 import styles from '../../css/app.module.css';
 import Image from "../helpers/image";
