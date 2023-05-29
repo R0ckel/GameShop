@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 
-const Image = ({ imageClassName, containerClassName, src, defaultImage, alt }) => {
+const Image = ({ imageClassName, containerClassName, src, defaultImage, alt, onClick }) => {
   const [imageSrc, setImageSrc] = useState(defaultImage?.toString())
 
   useEffect(()=>{
@@ -17,6 +17,7 @@ const Image = ({ imageClassName, containerClassName, src, defaultImage, alt }) =
       <img src={imageSrc ? imageSrc : defaultImage}
            className={imageClassName}
            alt= { alt ? alt : "img" }
+           onClick={ onClick ? onClick : null}
            onError={(event) => handleError(event)} />
     </div>
   );

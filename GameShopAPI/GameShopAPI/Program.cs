@@ -36,7 +36,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors(builder =>
-    builder.WithOrigins("http://localhost:3000")
+    builder.WithOrigins(app.Configuration.GetSection("Clients:ReactClient").Value ?? "http://localhost:3000")
            .AllowAnyHeader()
            .AllowAnyMethod()
            .AllowCredentials());

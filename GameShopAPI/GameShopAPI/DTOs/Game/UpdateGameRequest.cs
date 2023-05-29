@@ -16,6 +16,7 @@ public class UpdateGameRequest
     public string? Description { get; set; }
 
     // Navigation
+    [Required]
     public Guid CompanyId { get; set; }
     public ICollection<Guid> GenreIds { get; set; } = new List<Guid>();
 }

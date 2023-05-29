@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace GameShopAPI.Data;
 
-public static class SeedData
+public static class GameShopSeedData
 {
     public static void Initialize(IServiceProvider serviceProvider)
     {

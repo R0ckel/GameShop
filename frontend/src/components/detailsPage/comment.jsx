@@ -24,8 +24,21 @@ export const Comment = ({comment, updateCommentList}) => {
 		});
 	}
 
+	const getRandomColor = () => {
+		const r = Math.floor(Math.random() * 256);
+		const g = Math.floor(Math.random() * 256);
+		const b = Math.floor(Math.random() * 256);
+		const a = Math.random() * (0.3 - 0.05) + 0.05;
+		return `rgba(${r}, ${g}, ${b}, ${a})`;
+	}
+
+	const randomBackgroundColor = {
+		backgroundColor: getRandomColor(),
+		border: '1px solid white'
+	}
+
 	return(
-		<div className={`${styles.comment} ${styles.backgroundHighlighted}`}>
+		<div style={randomBackgroundColor} className={`${styles.comment}`}>
 			<div className={styles.commentSidebar}>
 				<Link to={`/profile/${comment?.userId}`} className={styles.noLink}>
 					<Image
@@ -39,7 +52,7 @@ export const Comment = ({comment, updateCommentList}) => {
 				<span>{new Date(comment?.created).toLocaleDateString()}</span>
 				<span>{new Date(comment?.created).toLocaleTimeString()}</span>
 			</div>
-			<div className={`${styles.smoothBorder} ${styles.backgroundHighlighted} ${styles.commentTextBlock}`}>
+			<div style={randomBackgroundColor} className={`${styles.smoothBorder} ${styles.commentTextBlock}`}>
 				{comment?.text}
 			</div>
 			{userId === comment.userId ?

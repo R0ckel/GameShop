@@ -208,7 +208,7 @@ main{
 .capitalize *, .capitalize{
   text-transform: capitalize;
 }
-.smoothTable > thead tr{
+.smoothTable > thead{
   background-color: #151515;
   height: 30px;
 }
@@ -299,13 +299,18 @@ input[type="submit"]:hover {
   margin: 1vh;
 }
 .thumbnail{
-  height: 5.5vh;
+  height: 50px;
   margin-top: 0.5vh;
   margin-left: auto;
   margin-right: auto;
 }
 .backgroundHighlighted{
   background: rgba(255, 255, 255, 0.05);
+}
+.centerInnerVertical{
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
 }
 .smoothBorder{
   border-radius: 2vh;
@@ -352,4 +357,7 @@ input[type="submit"]:hover {
 .wideButton{
   margin: 3vh auto;
   width: 40%;
+}
+.fontNormal, .fontNormal *{
+  font-size: 20px;
 }

@@ -31,7 +31,7 @@ const CheckTableRow = ({item, cardViewFields, updateSender, isChecked, thumbnail
 	};
 
 	return (
-		<tr>
+		<tr style={checked ? {backgroundColor: 'rgba(0,2,51,0.55)'}: {}}>
 			{thumbnailSrc == null ? <></> :
 				<td>
 					<Image

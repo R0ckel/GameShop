@@ -113,7 +113,7 @@ public static class HostingExtensions
         using (var serviceScope = app.ApplicationServices.CreateScope())
         {
             var services = serviceScope.ServiceProvider;
-            SeedData.Initialize(services);
+            GameShopSeedData.Initialize(services);
         }
 
         return app;

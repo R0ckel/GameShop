@@ -19,9 +19,19 @@ const Header = () => {
 
       {
         role.toLowerCase() === 'admin' ?
-          <Link to={`/admin/products`} className={`${styles.noLink} ${styles.headerButton} ${styles.aleft}`}>
-            <span className={`${styles.app}`}> Admin Panel </span>
-          </Link> :
+          <div style={{margin: "auto 0"}}>
+            <Link to={`/admin/games`} className={`${styles.noLink} ${styles.headerButton} ${styles.aleft}`}>
+              <span className={`${styles.app}`}> Games </span>
+            </Link>
+
+            <Link to={`/admin/companies`} className={`${styles.noLink} ${styles.headerButton} ${styles.aleft}`}>
+              <span className={`${styles.app}`}> Companies </span>
+            </Link>
+
+            <Link to={`/admin/gameGenres`} className={`${styles.noLink} ${styles.headerButton} ${styles.aleft}`}>
+              <span className={`${styles.app}`}> Genres </span>
+            </Link>
+          </div> :
           <></>
       }
 

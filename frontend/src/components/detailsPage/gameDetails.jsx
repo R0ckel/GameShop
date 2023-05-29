@@ -90,7 +90,7 @@ export default function GameDetails () {
           <Image
             key={`${gameImagesApiUrl}/${id}_gameImage`}
             imageClassName={`${styles.gamePictureSize} ${styles.smoothBorder}`}
-            containerClassName={`${styles.backgroundHighlighted} ${styles.smoothBorder}`}
+            containerClassName={`${styles.backgroundHighlighted} ${styles.smoothBorder} ${styles.centerInnerVertical}`}
             src={`${gameImagesApiUrl}/${id}`}
             defaultImage={defaultGamePicture}
           />

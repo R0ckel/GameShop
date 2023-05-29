@@ -16,7 +16,7 @@ public class GameImagesController : ControllerBase
         _gameImagesService = gameImagesService;
     }
 
-    // GET api/v1/GameImages/5/image
+    // GET api/v1/GameImages/5
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id, bool thumbnail = false)
     {
@@ -35,12 +35,12 @@ public class GameImagesController : ControllerBase
         return result;
     }
 
-    // Post api/v1/GameImages/5/image
-    [HttpPost("{id}")]
-    public async Task<BaseResponse<GameResponse>> Post(Guid id, IFormFile file)
+    // Post api/v1/GameImages/5
+    [HttpPut("{id}")]
+    public async Task<BaseResponse<GameResponse>> Put(Guid id, IFormFile file)
         => await _gameImagesService.UploadImageAsync(id, file);
 
-    // Delete api/v1/GameImages/5/image
+    // Delete api/v1/GameImages/5
     [HttpDelete("{id}")]
     public async Task<BaseResponse<GameResponse>> Delete(Guid id)
         => await _gameImagesService.DeleteImageAsync(id);

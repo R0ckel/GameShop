@@ -6,7 +6,7 @@ export const KeyValueTable = ({item}) => {
   const rows = Object.keys(item).map((key) => ({key: key, value: item[key]}));
 
   return (
-    <table className={`${styles.smoothTable}`}>
+    <table className={`${styles.smoothTable}`} style={{minWidth: '30vw'}}>
       <tbody>
       {rows.map((row) => (
         <tr key={`${item.id}${row.key}`}>

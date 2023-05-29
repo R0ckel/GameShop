@@ -61,8 +61,9 @@ export const Profile = () => {
 
 	//for image upload
 	const [fileList, setFileList] = useState([]);
-	const [isEditAvatarModalOpen, setIsEditAvatarModelOpen] = useState(false);
+	const [isEditAvatarModalOpen, setIsEditAvatarModalOpen] = useState(false);
 	const [avatarUrl, setAvatarUrl] = useState(`${userImagesApiUrl}/${finalId}?${Date.now()}`);
+
 	const [isEditUserModalOpen, setIsEditUserModalOpen] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 	const [lastUpdateTime, setLastUpdateTime] = useState(Date.now())
@@ -151,7 +152,7 @@ export const Profile = () => {
 			await ProfileService.putImage(finalId, fileList[0]);
 			setAvatarUrl(`${userImagesApiUrl}/${finalId}?${Date.now()}`);
 			setFileList([]);
-			setIsEditAvatarModelOpen(false);
+			setIsEditAvatarModalOpen(false);
 			setIsSubmitting(false)
 		} else{
 			message.warning("Upload an image!")
@@ -160,7 +161,7 @@ export const Profile = () => {
 
 	const handleEditAvatarCancel = () => {
 		setFileList([]);
-		setIsEditAvatarModelOpen(false);
+		setIsEditAvatarModalOpen(false);
 	};
 
 	let profilePageContent;
@@ -168,7 +169,7 @@ export const Profile = () => {
 		profilePageContent = (
 			<>
 				<div style={{display: "flex", justifyContent: "space-evenly", marginTop: "1vh"}}>
-					<Button onClick={() => setIsEditAvatarModelOpen(true)}>Change Image</Button>
+					<Button onClick={() => setIsEditAvatarModalOpen(true)}>Change Image</Button>
 					<Modal
 						title="Upload Image"
 						open={isEditAvatarModalOpen}

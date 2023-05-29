@@ -40,7 +40,6 @@ export const ProfileService = {
 				withCredentials: true
 			});
 		} catch (error) {
-			console.log(error.response.data);
 			message.error(error.message);
 		}
 	},

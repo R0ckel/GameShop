@@ -1,5 +1,5 @@
 import axios from "axios";
-import {gamesApiUrl} from "../../variables/connectionVariables";
+import {gameImagesApiUrl, gamesApiUrl} from "../../variables/connectionVariables";
 import {message} from "antd";
 import qs from "qs";
 
@@ -50,6 +50,29 @@ export const GamesService = {
 			return response.data;
 		} catch (error) {
 			message.error(`Error occurred! Message: ${error.message}`);
+		}
+	},
+
+	putImage: async (id, file) => {
+		const formData = new FormData();
+		formData.append('file', file);
+		try {
+			return await axios.put(`${gameImagesApiUrl}/${id}`, formData, {
+				headers: {
+					'Content-Type': 'multipart/form-data',
+				},
+				withCredentials: true
+			});
+		} catch (error) {
+			message.error(error.message);
+		}
+	},
+	deleteImage: async (id) => {
+		try {
+			const response = await axios.delete(`${gameImagesApiUrl}/${id}`, { withCredentials: true });
+			return response.data;
+		} catch (error) {
+			message.error(error.message)
 		}
 	}
 }

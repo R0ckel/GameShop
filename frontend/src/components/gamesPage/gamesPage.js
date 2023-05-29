@@ -174,17 +174,21 @@ export function GamesPage() {
 			<table className={styles.smoothTable}>
 				<CheckTableHeader withImage={true} cardViewFields={cardViewFields} template={gameCards[0]}/>
 				<tbody>
-					{gameCards.map(item => (
-						<CheckTableRow
-							thumbnailSrc={`${gameImagesApiUrl}/${item.id}?thumbnail=true&${Date.now()}`}
-							defaultThumbnailSrc={defaultGameThumbnail}
-							isChecked={basketData?.basketItems?.filter(x => x.gameId === item.id ).length > 0}
-							item={item}
-							cardViewFields={cardViewFields}
-							key={`${item.id.toString()}_${basketData?.basketItems?.filter(x => x.gameId === item.id)[0]}`}
-							updateSender={toggleBasketItem}
-						/>
-					))}
+					{gameCards.map(item => {
+						const checked = basketData?.basketItems?.filter(x => x.gameId === item.id ).length > 0;
+						return (
+							<CheckTableRow
+								thumbnailSrc={`${gameImagesApiUrl}/${item.id}?thumbnail=true&${Date.now()}`}
+								defaultThumbnailSrc={defaultGameThumbnail}
+								isChecked={checked}
+								item={item}
+								cardViewFields={cardViewFields}
+								key={`${item.id.toString()}_${checked}`}
+								updateSender={toggleBasketItem}
+							/>
+						)
+					}
+					)}
 				</tbody>
 			</table>
 
