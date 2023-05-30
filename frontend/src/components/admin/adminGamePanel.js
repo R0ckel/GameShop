@@ -4,7 +4,6 @@ import {CloseOutlined, DeleteOutlined, EditOutlined, PlusOutlined, UploadOutline
 import {Form as FormikForm, Formik, useField} from 'formik';
 import * as Yup from 'yup';
 import Image from '../helpers/image'
-import styled from "styled-components";
 import defaultGameIcon from '../../image/game-icon.png';
 import styles from '../../css/app.module.css';
 import {GamesService} from "../../services/domain/gamesService";
@@ -14,6 +13,7 @@ import {gameImagesApiUrl} from "../../variables/connectionVariables";
 import { Form as AntdForm, Select } from 'antd';
 import {useSelector} from "react-redux";
 import {ErrorPage} from "../responses/errorPage";
+import {Error, MarginedButton, MarginedLabel} from "../helpers/styledFormComponents";
 
 const { Option } = Select;
 
@@ -80,18 +80,6 @@ const FormikAntdMultiSelect = ({ label, options, ...props }) => {
 		</AntdForm.Item>
 	);
 };
-
-const MarginedLabel = styled("label")`
-  margin: 10px 0 2px;
-`;
-
-const MarginedButton = styled(Button)`
-  margin-top: 20px;
-`;
-
-const Error = styled("div")`
-  color: red;
-`;
 
 export const AdminGamePanel = () => {
 	const [visible, setVisible] = useState(false);

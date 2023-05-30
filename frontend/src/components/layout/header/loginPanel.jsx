@@ -4,11 +4,12 @@ import styled from "styled-components";
 
 import {Field, Form, Formik} from 'formik';
 import * as Yup from 'yup';
-import {Button, Input, message, Modal} from 'antd';
+import {Input, message, Modal} from 'antd';
 import {useDispatch, useSelector} from "react-redux";
 import {AuthService} from "../../../services/authService";
 import {Link, useNavigate} from "react-router-dom";
 import {setUserData, updateBasketData} from "../../../context/store";
+import {Error, MarginedButton, MarginedLabel} from "../../helpers/styledFormComponents";
 
 const NameSpan = styled.span`
   margin: 0;
@@ -37,18 +38,6 @@ const StyledStatusButton = styled(StatusButton)`
   border: ${props => props.loggedIn ? '1px dotted crimson' : '3px double white'};
   margin-left: 10px;
 `
-
-const MarginedLabel = styled("label")`
-  margin: 10px 0 2px;
-`;
-
-const MarginedButton = styled(Button)`
-  margin-top: 20px;
-`;
-
-const Error = styled("div")`
-  color: red;
-`;
 
 const LoginSchema = Yup.object().shape({
   email: Yup.string()
