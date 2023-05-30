@@ -114,8 +114,8 @@ const LoginPanel = () => {
       console.log(response)
       if (response.success) {
         // Login successful
-        const userData = AuthService.getUserClaims();
-        AuthService.applyUserDataToContext(userData, dispatch);
+        const userClaims = AuthService.getUserClaims();
+        AuthService.applyUserDataToContext(userClaims, dispatch);
 
         setIsLoginModalVisible(false);
         message.success('Login successful');

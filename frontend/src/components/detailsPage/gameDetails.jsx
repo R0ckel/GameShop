@@ -44,7 +44,7 @@ export default function GameDetails () {
   }, [commentFilters, id, lastCommentUpdate])
 
   if (gameData === null) {
-    return <ErrorPage code={404}></ErrorPage>
+    return <ErrorPage code={404}/>
   }
 
   const tableItem = {

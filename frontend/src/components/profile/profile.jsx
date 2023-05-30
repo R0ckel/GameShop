@@ -119,8 +119,8 @@ export const Profile = () => {
 				const loginResponse = await AuthService.login({email: loginEmail, password: loginPassword})
 				if (loginResponse.success) {
 					// Login successful
-					const userData = AuthService.getUserClaims();
-					AuthService.applyUserDataToContext(userData, dispatch);
+					const userClaims = AuthService.getUserClaims();
+					AuthService.applyUserDataToContext(userClaims, dispatch);
 					updateTime()
 				} else {
 					// Login failed

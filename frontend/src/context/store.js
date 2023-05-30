@@ -1,7 +1,7 @@
 import {configureStore, createSlice} from '@reduxjs/toolkit'
 
 const userDataSlice = createSlice({
-	name: 'userStatus',
+	name: 'userData',
 	initialState: {
 		isLoggedIn: false,
 		userId: "",

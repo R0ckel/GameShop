@@ -12,6 +12,8 @@ import {CompaniesService} from "../../services/domain/companiesService";
 import {GameGenresService} from "../../services/domain/gameGenresService";
 import {gameImagesApiUrl} from "../../variables/connectionVariables";
 import { Form as AntdForm, Select } from 'antd';
+import {useSelector} from "react-redux";
+import {ErrorPage} from "../responses/errorPage";
 
 const { Option } = Select;
 
@@ -122,6 +124,9 @@ export const AdminGamePanel = () => {
 	const [isEditImageModalOpen, setIsEditImageModalOpen] = useState(false);
 	const [isSubmitting, setIsSubmitting] = useState(false);
 
+	const [currentGameId, setCurrentGameId] = useState(null);
+	const [currentImageId, setCurrentImageId] = useState('');
+
 	useEffect( () => {
 		async function updateGames(){
 			setGames(await GamesService.get(filters));
@@ -144,6 +149,11 @@ export const AdminGamePanel = () => {
 	useEffect(() => {
 		localStorage.setItem('tableView', tableView.toString());
 	}, [tableView]);
+
+	const {isLoggedIn, role} = useSelector(state => state.userData)
+	if (!isLoggedIn || role.toLowerCase() !== "admin"){
+		return <ErrorPage code={401}/>
+	}
 
 	const columns = [
 		{
@@ -211,7 +221,6 @@ export const AdminGamePanel = () => {
 		return genres.map(x => x.name).join(', ');
 	}
 
-	const [currentGameId, setCurrentGameId] = useState(null);
 	const handleOpenAddForm = () => {
 		setEditingProduct(null);
 		setVisible(true);
@@ -255,7 +264,6 @@ export const AdminGamePanel = () => {
 	};
 
 	//image
-	const [currentImageId, setCurrentImageId] = useState('');
 	const handleOpenUploadImageForm = (record) => {
 		setCurrentImageId(record);
 		setIsEditImageModalOpen(true);

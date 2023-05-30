@@ -292,6 +292,7 @@ input[type="submit"]:hover {
 }
 .profileAvatarSize{
   height: calc(min(40vh, 40vw));
+  max-width: calc(100% - 2vh);
   margin: 1vh;
 }
 .gamePictureSize{
