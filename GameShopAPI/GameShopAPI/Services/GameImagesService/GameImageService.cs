@@ -6,6 +6,7 @@ using GameShopAPI.Services.ImageService;
 using Microsoft.AspNetCore.Mvc;
 using GameShopAPI.Models.Domain;
 using Microsoft.EntityFrameworkCore;
+using System.IO;
 
 namespace GameShopAPI.Services.GameImagesService;
 
@@ -35,21 +36,35 @@ public class GameImageService : IModelImageService<GameResponse>
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                // Create an empty file
-                var result = _imageService.SaveEmpty($"game_{game.Id}_empty");
-                path = result.MainPath;
-
-                game.ImagePath = path;
-                game.ThumbnailImagePath = path;
-                _context.SaveChanges();
+                path = await CreateEmptyImage(game);
             }
 
-            return await _imageService.GetImageAsync(path);
+            try
+            {
+                return await _imageService.GetImageAsync(path);
+            }
+            catch (FileNotFoundException)
+            {
+                path = await CreateEmptyImage(game);
+                return await _imageService.GetImageAsync(path);
+            }
         }
         catch (Exception)
         {
             return null;
         }
+    }
+
+    private async Task<string> CreateEmptyImage(Game game)
+    {
+        // Create an empty file
+        var result = _imageService.SaveEmpty($"game_{game.Id}_empty");
+        var path = result.MainPath;
+
+        game.ImagePath = path;
+        game.ThumbnailImagePath = path;
+        _context.SaveChanges();
+        return path;
     }
 
     public async Task<BaseResponse<GameResponse>> UploadImageAsync(Guid gameId, IFormFile imageFile)

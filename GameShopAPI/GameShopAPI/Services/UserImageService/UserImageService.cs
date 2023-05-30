@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc;
 using GameShopAPI.Models.Base;
 using Microsoft.EntityFrameworkCore;
 using GameShopAPI.Models.Domain;
+using System.IO;
 
 namespace GameShopAPI.Services.UserImageService;
 
@@ -35,27 +36,40 @@ public class UserImageService : IModelImageService<UserResponse>
 
             if (string.IsNullOrWhiteSpace(path))
             {
-                // Create an empty file
-                var result = _imageService.SaveEmpty($"user_{user.Id}_empty");
-                path = result.MainPath;
-
-                // Disable the trigger
-                await _context.Database.ExecuteSqlRawAsync("ALTER TABLE Users DISABLE TRIGGER SetUserLocked");
-
-                user.ImagePath = path;
-                user.ThumbnailImagePath = path;
-                _context.SaveChanges();
-
-                // Re-enable the trigger
-                await _context.Database.ExecuteSqlRawAsync("ALTER TABLE Users ENABLE TRIGGER SetUserLocked");
+                path = await CreateEmptyImage(user);
             }
 
-            return await _imageService.GetImageAsync(path);
+            try
+            {
+                return await _imageService.GetImageAsync(path);
+            }
+            catch(FileNotFoundException) {
+                path = await CreateEmptyImage(user);
+                return await _imageService.GetImageAsync(path);
+            }
         }
         catch (Exception)
         {
             return null;
         }
+    }
+
+    private async Task<string> CreateEmptyImage(User user)
+    {
+        // Create an empty file
+        var result = _imageService.SaveEmpty($"user_{user.Id}_empty");
+        var path = result.MainPath;
+
+        // Disable the trigger
+        await _context.Database.ExecuteSqlRawAsync("ALTER TABLE Users DISABLE TRIGGER SetUserLocked");
+
+        user.ImagePath = path;
+        user.ThumbnailImagePath = path;
+        _context.SaveChanges();
+
+        // Re-enable the trigger
+        await _context.Database.ExecuteSqlRawAsync("ALTER TABLE Users ENABLE TRIGGER SetUserLocked");
+        return path;
     }
 
     public async Task<BaseResponse<UserResponse>> UploadImageAsync(Guid userId, IFormFile imageFile)
